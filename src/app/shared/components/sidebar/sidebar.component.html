@@ -1,0 +1,107 @@
+<!-- <div class="container-fluid" id="sidebar">
+    <div class="row flex-nowrap">
+        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-blue">
+            <div
+                class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100 justify-content-between">
+                <div>
+                    <a href="/"
+                        class="d-flex align-items-center justify-content-center pb-3 w-100 text-decoration-none mt-2 header"
+                        style="gap: 10px;">
+                        <img class="logo" src="../../../../assets/images/sidebar-logo.png"><span
+                            class="text-white fw-bold">Illusion Dental</span>
+                    </a>
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start w-100"
+                        id="menu">
+                        <li class="nav-item w-100">
+                            <a href="/" class="nav-link align-middle px-0">
+                                <i class="fas fa-solid fa-house mx-2"></i> <span
+                                    class="ms-1 d-none d-sm-inline w-100">Home</span>
+                            </a>
+                        </li>
+                        <li class="nav-item w-100">
+                            <a href="/login" class="nav-link align-middle px-0">
+                                <i class="fas fa-right-to-bracket mx-2"></i> <span class="ms-1 d-none d-sm-inline">Log
+                                    In</span>
+                            </a>
+                        </li>
+                        <li class="nav-item w-100">
+                            <a href="#" class="nav-link align-middle px-0">
+                                <i class="fas fa-file mx-2"></i> <span class="ms-1 d-none d-sm-inline">Case
+                                    Search</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+                <div class="w-100 pb-4">
+                    <ul id="menu" class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start w-100">
+                        <li class="nav-item w-100" (click)="storageListernerService.clear()">
+                            <a href="/login" class="nav-link align-middle px-0">
+                                <i class="fas fa-right-from-bracket mx-2"></i> <span class="ms-1 d-none d-sm-inline">Log
+                                    Out</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col py-3">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div> -->
+
+<!-- <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+    Open Sidebar
+</button> -->
+<div class="menu toolbar" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample"
+    aria-controls="offcanvasExample">
+    <i class="fas fa-solid fa-bars mx-2 p-2"></i>
+    <h5>You have been logged in Illusion Dental Lab</h5>
+</div>
+
+<div class="offcanvas offcanvas-start" style="width: 15vw;" tabindex="-1" id="offcanvasExample"
+    aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Self Serve</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column align-items-sm-start justify-content-between">
+        <div class="w-100">
+            <div class="w-100 d-flex flex-column align-items-center mb-5 profile">
+                <img class="user-img" src="assets/images/1.jpg">
+                <h4>{{this.UserData.DisplayName}}</h4>
+                <p>{{this.UserData.EmailID}}</p>
+            </div>
+            <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start w-100"
+                id="menu">
+                <li class="nav-item w-100">
+                    <a [routerLink]="['/work_area/home']" class="nav-link align-middle px-0">
+                        <i class="fas fa-solid fa-house mx-2"></i> <span class="ms-1 d-sm-inline w-100">Home</span>
+                    </a>
+                </li>
+                <li class="nav-item w-100" style="cursor: pointer">
+                    <a class="nav-link align-middle px-0">
+                        <i class="fas fa-file mx-2"></i> <span class="ms-1 d-sm-inline">Case
+                            Search</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+        <div>
+            <ul id="menu">
+                <li class="nav-item w-100" style="cursor: pointer;" (click)="storageListernerService.clear()">
+                    <a class="nav-link align-middle px-0">
+                        <i class="fas fa-right-from-bracket mx-2"></i> <span class="ms-1 d-sm-inline">Log
+                            Out</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+<div class="col py-3">
+    <router-outlet></router-outlet>
+</div>

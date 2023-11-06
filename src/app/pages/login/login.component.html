@@ -1,0 +1,43 @@
+<div class="login-form d-flex flex-column">
+    <img class="login-img" src="assets/images/login-page.png">
+    <form [formGroup]="loginForm" (ngSubmit)="loginAPI()">
+        <div class="form d-flex flex-column form-material mb-2" id="loginform">
+            <div class="header">
+                <h2 class="">Sign In</h2>
+                <p class="text">Hi there! Nice to see you again.</p>
+            </div>
+            <div class="form-group">
+                <div class="username w-100">
+                    <label class="form-label">Username</label>
+                    <input class="form-control" type="text" [(ngModel)]="userOb.code" placeholder="Username"
+                        formControlName="code" id="username">
+                    <div class="error_msg"
+                        *ngIf="loginForm.controls['code'].hasError('required') &&  loginForm.controls['code'].touched">
+                        {{utilsService.validationService.REQUIRED_FOR_USER_NAME}}</div>
+                </div>
+
+                <div class="password w-100" style="position: relative;">
+                    <label class="form-label">Password</label>
+                    <div style="position: relative;">
+                        <input class="form-control" [(ngModel)]="userOb.password" placeholder="Password"
+                            [type]="flagForPasswordHideShow ? 'password' : 'text'" formControlName="password">
+                        <span class="showpass"
+                            style="position: absolute; top: 40%; transform: translateY(-50%); right: 10px;"
+                            (click)="flagForPasswordHideShow = !flagForPasswordHideShow">
+                            <i class="fa"
+                                [ngClass]="{'fa-eye': flagForPasswordHideShow === false, 'fa-eye-slash': flagForPasswordHideShow}"></i>
+                        </span>
+                    </div>
+                    <div class="error_msg"
+                        *ngIf="loginForm.controls['password'].hasError('required') &&  loginForm.controls['password'].touched">
+                        {{utilsService.validationService.PASSWORD_REQUIRED}}</div>
+                </div>
+            </div>
+            <button class="btn btn-primary bg-clr" id="loginbutton" type="submit">Sign In</button>
+        </div>
+    </form>
+    <div class="login-meta-data text-center">
+        <a class="forgot-password d-block mb-1" [routerLink]="['/forgot-password']" routerLinkActive="active">Forgot
+            Password?</a>
+    </div>
+</div>

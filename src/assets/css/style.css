@@ -1,0 +1,10 @@
+.form-material .form-control { background-color: rgba(0, 0, 0, 0); background-position: center bottom, center calc(100% - 1px); background-repeat: no-repeat; background-size: 0 2px, 100% 1px; padding: 0; -webkit-transition: background 0s ease-out 0s; -o-transition: background 0s ease-out 0s; transition: background 0s ease-out 0s }
+.form-material .form-control, .form-material .form-control.focus, .form-material .form-control:focus { background-image: -webkit-gradient(linear, left top, left bottom, from(#f23d3d), to(#f23d3d)), -webkit-gradient(linear, left top, left bottom, from(#d9d9d9), to(#d9d9d9)); background-image: -webkit-linear-gradient(#f23d3d, #f23d3d), -webkit-linear-gradient(#f23d3d, #d9d9d9); background-image: -o-linear-gradient(#f23d3d, #f23d3d), -o-linear-gradient(#d9d9d9, #d9d9d9); background-image: linear-gradient(#f23d3d, #f23d3d), linear-gradient(#d9d9d9, #d9d9d9); border: 0 none; border-radius: 0; -webkit-box-shadow: none; box-shadow: none; float: none }
+.form-material .form-control.focus, .form-material .form-control:focus { background-size: 100% 2px, 100% 1px; outline: 0 none; -webkit-transition-duration: 0.3s; -o-transition-duration: 0.3s; transition-duration: 0.3s }
+.inputicon > span.showpass { right: 7px !important; left: inherit !important; }
+
+@media (max-width: 768px) {
+    .offcanvas.offcanvas-start.show{
+        width: 50vw !important;
+    }
+}
