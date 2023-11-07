@@ -1,43 +1,64 @@
 <div>
   <div style="text-align: right;">
-    <button type="button" class="btn btn-primary" data-toggle="modal" (click)="openModal('mymodal')" data-target="#mymodal">Set
+    <button type="button" class="btn btn-primary" data-toggle="modal" (click)="openModal('mymodal')" data-target="#mymodal"
+    *ngIf="isSettingEnabled"><i class="fa-sharp fa-solid fa-gear"></i>
     </button>
   </div>
   <div class="d-flex justify-content-center">
     <aw-wizard>
-        <aw-wizard-step style="list-style: none;">
+        <aw-wizard-step >
           <div>
             <p>Location: <b> {{this.Location}}</b></p>
             <p>Department: <b> {{this.Department}}</b></p>
             <p>Process: <b> {{this.Process}}</b></p>
           </div>
-          <footer style="text-align: right;"><button type="button" class="btn btn-success" awNextStep>Next</button></footer>
+          <footer style="text-align: right;"><button type="button" class="btn btn-success " (click)="this.isSettingEnabled =false" awNextStep>Next</button></footer>
         </aw-wizard-step>
-        <aw-wizard-step style="list-style: none;">
+        <aw-wizard-step style="list-style: none; ">
           <div>
             <div  class="rounded border border-secondary p-5 mb-3">Scan Employee Barcode</div>
             <div class="input-group input-group-sm mb-3">
               <input type="text" class="form-control" aria-label="Small" placeholder="Type Employee Code" aria-describedby="inputGroup-sizing-sm">
+              <!-- <p-autoComplete [(ngModel)]="selectedItem" [suggestions]="suggestions" (completeMethod)="search($event)" placeholder="Enter Employee"></p-autoComplete> -->
             </div>
           </div>
           <div>
             <footer style="text-align: right;">
-              <button type="button" class="btn btn-danger" awPreviousStep>Go to previous step</button>
-              <button type="button" class="btn btn-success" awNextStep>Next Step</button>
+              <button type="button" class="btn btn-danger" (click)="this.isSettingEnabled = true" awPreviousStep>Previous</button>
+              <button type="button" class="btn btn-success" style="margin-left: 20px;" awNextStep>Next</button>
+            </footer>
+          </div>
+        </aw-wizard-step>
+        <aw-wizard-step style="list-style: none; ">
+          <div>
+            <div  class="rounded border border-secondary p-5 mb-3">Scan Impression No.</div>
+            <div class="input-group input-group-sm mb-3">
+              <input type="text" class="form-control" aria-label="Small" placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
+            </div>
+          </div>
+          <div>
+            <footer style="text-align: right;">
+              <button type="button" class="btn btn-danger " awPreviousStep>Previous</button>
+              <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled" (click)="openModal('messageModal'); addImpressionNo()"  >Add</button>
+              <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="isNextEnabled" awNextStep>Next</button>
             </footer>
           </div>
         </aw-wizard-step>
         <aw-wizard-step style="list-style: none;">
           <div>
-            <div  class="rounded border border-secondary p-5 mb-3">Scan Impression No.</div>
-            <div class="input-group input-group-sm mb-3">
-              <input type="text" class="form-control" aria-label="Small" placeholder="Type Impression Number" aria-describedby="inputGroup-sizing-sm">
+            <div  class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
+            <div class="input-group input-group-sm mb-3" *ngFor="let item of arrayOfImpNo">
+              {{item}}
             </div>
           </div>
           <div>
-            <footer style="text-align: right;">
-              <button type="button" class="btn btn-danger" awPreviousStep>previous step</button>
-              <button type="button" class="btn btn-success" (click)="finishFunction(); openModal('messageModal')">Submit</button>
+            <footer style="text-align: right;" *ngIf="isFooterEnabled">
+              <button type="button" class="btn btn-success" style="margin-left: 10px;" (click)="openModal('deleteConfirmationModal')">Submit</button>
+              <button type="button" class="btn btn-danger" style="margin-left: 10px;" (click)="clearArray()"  awResetWizard>Cancel</button>
+            </footer>
+            <footer style="text-align: right;" *ngIf="!isFooterEnabled" >
+              <h4 style="color: green; text-align: center;">{{Donemessage}}</h4>
+              <button type="button" class="btn btn-danger" style="margin-left: 10px;" (click)="finishFunction();this.isFooterEnabled=false;clearArray();" awResetWizard>OK</button>
             </footer>
           </div>
         </aw-wizard-step>
@@ -50,17 +71,24 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Set Values</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal('mymodal')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h4 class="modal-title ml-4 justify-content-start d-flex" style="color: white" id="exampleModalLongTitle">Set Values</h4>
+        <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2"(click)="closeModal('mymodal')"
+        data-dismiss="modal" title="Close" style="background: none;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        ...
+        <div class="modal-body">
+          <div class="justify-content-center">
+            <p-dropdown class="d-block mb-1" [options]="cities" [(ngModel)]="selectedCity" placeholder="Select a City" [editable]="false" optionLabel="name"></p-dropdown>
+            <p-dropdown class="d-block mb-1" [options]="cities" [(ngModel)]="selectedDepartment" placeholder="Select a Department" [editable]="false" optionLabel="name"></p-dropdown>
+            <p-dropdown class="d-block mb-1" [options]="cities" [(ngModel)]="selectedProcess" placeholder="Select a Process" [editable]="false" optionLabel="name"></p-dropdown>
+            <p-autoComplete [(ngModel)]="selectedItem" [suggestions]="suggestions" (completeMethod)="search($event)" placeholder="Enter Employee"></p-autoComplete>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
-        <!-- <button type="button" class="btn btn-secondary" (click)="closeModal()" data-dismiss="modal">Close</button> -->
-        <button type="button" class="btn btn-success">Submit</button>
+        <div class="row col-md-4 justify-content-end h-20 ">
+          <button type="button" class="btn btn-success" style="background-color: #18A3E4 !important;">Submit</button>
+        </div>
       </div>
     </div>
   </div>
@@ -71,19 +99,18 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Message</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal('messageModal')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Message</h5>
+        <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2"(click)="closeModal('messageModal')"
+        data-dismiss="modal" title="Close" style="background: none;color: black;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="modal-body" style="background-color: blue;">
-        <p style="color: snow;">
+      <div class="modal-body" >
+        <p>
           {{message}}
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-success" (click)="closeModal('messageModal');openModal('confirmModal')" data-dismiss="modal">Submit</button>
-        <button type="button" class="btn btn-danger" (click)="closeModal('messageModal');openModal('confirmModal')" data-dismiss="modal">Submit</button>
+        <button type="button" class="btn btn-danger" (click)="closeModal('messageModal');openModal('confirmModal')" data-dismiss="modal">Cancel</button>
       </div>
     </div>
   </div>
@@ -94,17 +121,32 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Message</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal('confirmModal')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Message</h5>
+        <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2"(click)="closeModal('confirmModal')"
+        data-dismiss="modal" title="Close" style="background: none; color: black;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
         <b>Do you wish to keep scanning?</b>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal')" data-dismiss="modal">Yes</button>
-        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal')" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal'); this.isNextEnabled = false" data-dismiss="modal">Yes</button>
+        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal'); this.isNextEnabled = true" data-dismiss="modal">No</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- delete Modal -->
+<div class="modal" aria-labelledby="exampleModalCenterTitle" id="deleteConfirmationModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body text-center">
+          <h3 class="mb-3">Are you sure ? <br /> You want to Continue ..</h3>
+          <button type="button" class="btn btn-danger mr-5" data-dismiss="modal"
+          (click)="closeModal('deleteConfirmationModal')">No</button>
+          <button type="button" class="btn btn-success" (click)="closeModal('deleteConfirmationModal');this.isFooterEnabled=false">Yes</button>
+        </div>
       </div>
     </div>
   </div>

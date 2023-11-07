@@ -26,28 +26,50 @@
   }
   
   /* Style the buttons */
-  button {
+  /* button {
     background-color: #007bff;
     color: #fff;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
-  }
+  } */
   
   /* Apply specific styles to different buttons */
-  .next-step {
+  /* .next-step {
     background-color: #007bff;
-  }
+  } */
   
-  .previous-step {
+  /* .previous-step {
     background-color: #ccc;
-  }
+  } */
   
   /* Style the finish button */
-  button[onclick="finishFunction"] {
+  /* button[onclick="finishFunction"] {
     background-color: #4CAF50;
-  }
-  
+  } */
+/*   
   button:hover {
     background-color: #0056b3;
+  } */
+  .modal-header{
+    background-color: #18A3E4 !important;
   }
+  aw-wizard-navigation-bar >ul {
+    list-style-type: none;
+  }
+  footer{
+    position: absolute;
+    bottom: 0;
+  }
+ @media only screen and (min-width: 768px) {
+  footer{
+    position: absolute;
+    bottom: 0;
+  }
+}
+@media only screen and (min-width: 590px) {
+  footer{
+    position: absolute;
+    bottom: 0;
+  }
+}
