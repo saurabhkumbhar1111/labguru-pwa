@@ -1,0 +1,112 @@
+<div>
+  <div style="text-align: right;">
+    <button type="button" class="btn btn-primary" data-toggle="modal" (click)="openModal('mymodal')" data-target="#mymodal">Set
+    </button>
+  </div>
+  <div class="d-flex justify-content-center">
+    <aw-wizard>
+        <aw-wizard-step style="list-style: none;">
+          <div>
+            <p>Location: <b> {{this.Location}}</b></p>
+            <p>Department: <b> {{this.Department}}</b></p>
+            <p>Process: <b> {{this.Process}}</b></p>
+          </div>
+          <footer style="text-align: right;"><button type="button" class="btn btn-success" awNextStep>Next</button></footer>
+        </aw-wizard-step>
+        <aw-wizard-step style="list-style: none;">
+          <div>
+            <div  class="rounded border border-secondary p-5 mb-3">Scan Employee Barcode</div>
+            <div class="input-group input-group-sm mb-3">
+              <input type="text" class="form-control" aria-label="Small" placeholder="Type Employee Code" aria-describedby="inputGroup-sizing-sm">
+            </div>
+          </div>
+          <div>
+            <footer style="text-align: right;">
+              <button type="button" class="btn btn-danger" awPreviousStep>Go to previous step</button>
+              <button type="button" class="btn btn-success" awNextStep>Next Step</button>
+            </footer>
+          </div>
+        </aw-wizard-step>
+        <aw-wizard-step style="list-style: none;">
+          <div>
+            <div  class="rounded border border-secondary p-5 mb-3">Scan Impression No.</div>
+            <div class="input-group input-group-sm mb-3">
+              <input type="text" class="form-control" aria-label="Small" placeholder="Type Impression Number" aria-describedby="inputGroup-sizing-sm">
+            </div>
+          </div>
+          <div>
+            <footer style="text-align: right;">
+              <button type="button" class="btn btn-danger" awPreviousStep>previous step</button>
+              <button type="button" class="btn btn-success" (click)="finishFunction(); openModal('messageModal')">Submit</button>
+            </footer>
+          </div>
+        </aw-wizard-step>
+    </aw-wizard>
+  </div>
+</div>
+
+<!-- setting Modal -->
+<div class="modal" aria-labelledby="exampleModalCenterTitle" id="mymodal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Set Values</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal('mymodal')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <!-- <button type="button" class="btn btn-secondary" (click)="closeModal()" data-dismiss="modal">Close</button> -->
+        <button type="button" class="btn btn-success">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div class="modal" aria-labelledby="exampleModalCenterTitle" id="messageModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Message</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal('messageModal')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="background-color: blue;">
+        <p style="color: snow;">
+          {{message}}
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" (click)="closeModal('messageModal');openModal('confirmModal')" data-dismiss="modal">Submit</button>
+        <button type="button" class="btn btn-danger" (click)="closeModal('messageModal');openModal('confirmModal')" data-dismiss="modal">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Message Modal -->
+<div class="modal" aria-labelledby="exampleModalCenterTitle" id="confirmModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Message</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal('confirmModal')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <b>Do you wish to keep scanning?</b>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal')" data-dismiss="modal">Yes</button>
+        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal')" data-dismiss="modal">No</button>
+      </div>
+    </div>
+  </div>
+</div>
+

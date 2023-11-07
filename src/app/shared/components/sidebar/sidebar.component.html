@@ -63,7 +63,7 @@
 <div class="offcanvas offcanvas-start" style="width: 15vw;" tabindex="-1" id="offcanvasExample"
     aria-labelledby="offcanvasExampleLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Self Serve</h5>
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Labguru</h5>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body d-flex flex-column align-items-sm-start justify-content-between">
@@ -81,18 +81,16 @@
                     </a>
                 </li>
                 <li class="nav-item w-100" style="cursor: pointer">
-                    <a class="nav-link align-middle px-0">
-                        <i class="fas fa-file mx-2"></i> <span class="ms-1 d-sm-inline">Case
-                            Search</span>
+                    <a [routerLink]="['/work_area/job-process']" class="nav-link align-middle px-0">
+                        <i class="fas fa-file mx-2"></i> <span class="ms-1 d-sm-inline">Job Process</span>
                     </a>
                 </li>
-
             </ul>
         </div>
         <div>
             <ul id="menu">
                 <li class="nav-item w-100" style="cursor: pointer;" (click)="storageListernerService.clear()">
-                    <a class="nav-link align-middle px-0">
+                    <a class="nav-link align-middle px-0 text-danger">
                         <i class="fas fa-right-from-bracket mx-2"></i> <span class="ms-1 d-sm-inline">Log
                             Out</span>
                     </a>
