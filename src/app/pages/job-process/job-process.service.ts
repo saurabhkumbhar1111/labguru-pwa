@@ -36,28 +36,21 @@ export class JobProcessService {
   arryforEmployee: any = [];
   employee: any;
   keyword: string;
-  constructor(public http: HttpClient, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
+  expiryCookiesDate: any;
+  constructor(public http: HttpClient,public UtilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
     public serverVariableService: ServerVariableService,) { 
     this.keyword = "name";
     this.getAllDropDownData();
+    if(this.cookieService.get('employeeName')!=="undefined" && this.cookieService.get('employeeName')!==""){
+      // this.arrayForLocationList.filter((item)=>{if(item.id ==this.cookieService.get("LocationID")){
+      //   this.LocationID = item;
+      //   this.Location=JSON.stringify(this.LocationID.name);
     
-    if(this.cookieService.get('LocationID')!=="undefined" && this.cookieService.get('LocationID')!==""){
-      // this.LocationID = JSON.parse(this.cookieService.get("LocationID"));
-      // console.log(typeof(this.cookieService.get("LocationID")));
-      this.LocationID = this.arrayForLocationList.filter(item=>item.id==parseInt(this.cookieService.get("LocationID")));
-      console.log(parseInt(this.cookieService.get("LocationID")));
-    }
-    // if(this.cookieService.get('EmployeeID')!=="undefined" && this.cookieService.get('EmployeeID')!==""){
-    //   this.LocationID = JSON.parse(this.cookieService.get("EmployeeID"));
-    // }
-    // if(this.cookieService.get('DepartmentID')!=="undefined" && this.cookieService.get('DepartmentID')!==""){
-    //   this.LocationID = JSON.parse(this.cookieService.get("DepartmentID"));
-    // }
-    // if(this.cookieService.get('ProcessID')!=="undefined" && this.cookieService.get('ProcessID')!==""){
-    //   this.LocationID = JSON.parse(this.cookieService.get("ProcessID"));
-    // }
-    // this.cookieService.get('locationID')
-    
+      // }});
+      console.log(this.cookieService.get('employeeName').split(' - '));
+      this.getMockEmployee(this.cookieService.get('employeeName').split(' - ')[0],1);
+      this.employee = this.arryforEmployee[0];
+  }
   }
   getAllDropDownData() {
     const param ={
@@ -81,7 +74,29 @@ export class JobProcessService {
       (response: any) => {
         this.arrayForDepartmentList = response.data.Department_DDL;
         this.arrayForLocationList =response.data.LineLocation;
-       },
+        if(this.cookieService.get('LocationID')!=="undefined" && this.cookieService.get('LocationID')!==""){
+            this.arrayForLocationList.filter((item)=>{if(item.id ==this.cookieService.get("LocationID")){
+              this.LocationID = item;
+              this.Location=JSON.stringify(this.LocationID.name);
+          
+            }});
+        }
+        if(this.cookieService.get('DepartmentID')!=="undefined" && this.cookieService.get('DepartmentID')!==""){
+          this.arrayForDepartmentList.filter((item)=>{if(item.id ==this.cookieService.get("DepartmentID")){
+            this.DepartmentID = item;
+            this.Department=JSON.stringify(this.DepartmentID.name);
+            this.onSelectDepartment();
+
+          }});
+      }
+    //   if(this.cookieService.get('ProcessID')!=="undefined" && this.cookieService.get('ProcessID')!==""){
+    //     this.arrayForProcessList.filter((item)=>{if(item.id ==this.cookieService.get("ProcessID")){
+    //       this.ProcessID = item;
+    //       this.Process=JSON.stringify(this.ProcessID.name);
+
+    //     }});
+    // }
+      },
       (error) => {
         console.error('Error:', error);
       }
@@ -90,6 +105,7 @@ export class JobProcessService {
   onSelectDepartment() {
     this.ProcessID = null;
     this.processJob =true;
+    // if(this.DepartmentID){
       const param = {
         'SSCID': 3033,
         'OrganizationUnitID': 0,
@@ -98,16 +114,23 @@ export class JobProcessService {
         'LoginRoleID': 1,
         'LoginCompanyID': 1,
         'innerSituationID': 40,
-        'ModuleID' : 2
+        'ModuleID' :!this.UtilsService.isNullUndefinedOrBlank(this.DepartmentID.id)?parseInt(this.DepartmentID.id):0
       };
      this.postProcess(param);
-  
     }
+    // }
     postProcess(data:any){
       const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/Common/GetCommonList_New';
       return this.http.post(apiUrl,data).subscribe(
         (response: any) => {
          this.arrayForProcessList =response.data.Data;
+         if(this.cookieService.get('ProcessID')!=="undefined" && this.cookieService.get('ProcessID')!==""){
+          this.arrayForProcessList.filter((item)=>{if(item.id ==this.cookieService.get("ProcessID")){
+            this.ProcessID = item;
+            this.Process=JSON.stringify(this.ProcessID.name);
+  
+          }});
+      }
       },
         (error) => {
           console.error('Error:', error);
@@ -130,10 +153,10 @@ export class JobProcessService {
   }
   
   search(search :any) {
-    this.getMockEmployee(search.query);
+    this.getMockEmployee(search.query,0);
     }
 
-    getMockEmployee(term:any){
+    getMockEmployee(term:any,id:number){
       const param = {
         'Keyword': term,
         'SSCID': 9006,
@@ -143,22 +166,28 @@ export class JobProcessService {
         'LoginReferenceID':864, 
         'innerSituationID': 46
       };
-      this.postData(param)
+      this.postData(param,id)
     }
-    postData(data: any) {
+    postData(data: any,id:number) {
       const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/JobEntry/GetJobEntry_Customer';
       return this.http.post(apiUrl, data).subscribe(
         (response: any) => {
-         this.arryforEmployee = [...response.data.Customer]
-      },
+         this.arryforEmployee = [...response.data.Customer];
+          if(id==1){
+            this.employee = this.arryforEmployee[0];
+          }
+        },
         (error) => {
           console.error('Error:', error);
         }
       );
+      
     }
-    
+    selectedEmployee :any;
     onSelectEmployee(){
-  console.log(this.employee);
+  this.selectedEmployee = this.arryforEmployee.find((item: { id: number; }) =>item.id ==this.employee.id)
+ console.log(this.selectedEmployee);
+  
 }
 
   addImpressionNo(){
@@ -176,20 +205,14 @@ export class JobProcessService {
   }
 
   deleteModal(){}
-  expiryCookiesDate: any;
   onSubmitSettingModal(){
-    
-  //  let location =this.LocationID.id;
-    // this.cookieService.set('LocationID', JSON.stringify(location), 365000);
     this.cookieService.set("LocationID",this.LocationID.id.toString(),this.expiryCookiesDate);
-
-     console.log(this.LocationID);
-    //  this.cookieService.set('DepartmentID', JSON.stringify(this.DepartmentID), 365000);
-    //  this.cookieService.set('ProcessID', JSON.stringify(this.ProcessID), 365000);
-    //  this.cookieService.set('employee', JSON.stringify(this.employee), 365000);
-     this.Location=JSON.stringify(this.LocationID.name);
-     this.Department=JSON.stringify(this.DepartmentID.name);
-     this.Process=JSON.stringify(this.ProcessID.name);
-
+    this.cookieService.set("DepartmentID",this.DepartmentID.id.toString(),this.expiryCookiesDate);
+    this.cookieService.set("ProcessID",this.ProcessID.id.toString(),this.expiryCookiesDate);
+    this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate);
+    this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate);
+    this.Location=JSON.stringify(this.LocationID.name);
+    this.Department=JSON.stringify(this.DepartmentID.name);
+    this.Process=JSON.stringify(this.ProcessID.name);
   }
 }
