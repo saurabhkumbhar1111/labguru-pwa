@@ -78,16 +78,16 @@
       <div class="modal-body">
         <div class="modal-body">
           <div class="justify-content-center">
-            <p-dropdown class="d-block mb-1" [options]="cities" [(ngModel)]="selectedCity" placeholder="Select a City" [editable]="false" optionLabel="name"></p-dropdown>
-            <p-dropdown class="d-block mb-1" [options]="cities" [(ngModel)]="selectedDepartment" placeholder="Select a Department" [editable]="false" optionLabel="name"></p-dropdown>
-            <p-dropdown class="d-block mb-1" [options]="cities" [(ngModel)]="selectedProcess" placeholder="Select a Process" [editable]="false" optionLabel="name"></p-dropdown>
-            <p-autoComplete [(ngModel)]="selectedItem" [suggestions]="suggestions" (completeMethod)="search($event)" placeholder="Enter Employee"></p-autoComplete>
+            <p-dropdown class="d-block mb-1" [options]="arrayForLocationList" bindlable="name"  bindValue="id" [(ngModel)]="LocationID"  placeholder="Select a Location" [editable]="false" optionLabel="name"></p-dropdown>
+            <p-dropdown class="d-block mb-1" [options]="arrayForDepartmentList"  bindValue="id" [(ngModel)]="DepartmentID" placeholder="Select a Department" (onChange)="onSelectDepartment()" [editable]="false" optionLabel="name"></p-dropdown>
+            <p-dropdown class="d-block mb-1" [options]="arrayForProcessList"  bindValue="id" [(ngModel)]="ProcessID" placeholder="Select a Process" [editable]="false" optionLabel="name" [disabled]="!processJob"></p-dropdown>
+            <p-autoComplete [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"  (completeMethod)="search($event)" placeholder="Enter Employee" field="name"></p-autoComplete>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <div class="row col-md-4 justify-content-end h-20 ">
-          <button type="button" class="btn btn-success" style="background-color: #18A3E4 !important;">Submit</button>
+          <button type="button" class="btn btn-success" style="background-color: #18A3E4 !important;" (click)="closeModal('mymodal');onSubmitSettingModal()" [disabled]="!(LocationID&&ProcessID&&DepartmentID&&employee)">Submit</button>
         </div>
       </div>
     </div>
