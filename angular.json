@@ -13,10 +13,10 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/self-serve-mobile-app",
+            "outputPath": "dist/labguru-pwa-app",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "baseHref": "/SelfServe/",
+            "baseHref": "/Labguru/",
             "polyfills": [
               "zone.js"
             ],

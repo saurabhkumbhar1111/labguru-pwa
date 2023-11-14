@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ServerVariableService } from 'src/app/services/server-variable.service';
 import { Deserialize } from 'cerialize';
 import { CookieService } from 'ngx-cookie-service';
+import { ThisReceiver } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,6 @@ export class JobProcessService {
   Location:string='';
   Department:string='';
   Process:string='';
-  message:string='Die Cutting Model Checking Ditching Die Preparation';
   isNextEnabled : boolean = false;
   isSettingEnabled :boolean = true;
   isFooterEnabled :boolean = true;
@@ -37,8 +37,10 @@ export class JobProcessService {
   employee: any;
   keyword: string;
   expiryCookiesDate: any;
-  constructor(public http: HttpClient,public UtilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
-    public serverVariableService: ServerVariableService,) { 
+  processing:string='';
+
+  constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
+    public serverVariableService: ServerVariableService) { 
     this.keyword = "name";
     this.getAllDropDownData();
     if(this.cookieService.get('employeeName')!=="undefined" && this.cookieService.get('employeeName')!==""){
@@ -114,7 +116,7 @@ export class JobProcessService {
         'LoginRoleID': 1,
         'LoginCompanyID': 1,
         'innerSituationID': 40,
-        'ModuleID' :!this.UtilsService.isNullUndefinedOrBlank(this.DepartmentID.id)?parseInt(this.DepartmentID.id):0
+        'ModuleID' :!this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id)?parseInt(this.DepartmentID.id):0
       };
      this.postProcess(param);
     }
@@ -201,7 +203,10 @@ export class JobProcessService {
     this.isSettingEnabled  = true;
     this.isFooterEnabled = true;
     this.isNextEnabled =false;
-
+    this.SkipProcessListColln=[];
+    this.AllValidationArrayColln=[];
+    this.paramarray=[];
+    this.impressionNo='';
   }
 
   deleteModal(){}
@@ -214,5 +219,172 @@ export class JobProcessService {
     this.Location=JSON.stringify(this.LocationID.name);
     this.Department=JSON.stringify(this.DepartmentID.name);
     this.Process=JSON.stringify(this.ProcessID.name);
+  }
+
+  validateProcess(){
+    const param = {
+      'SituationID': 0,
+      'TransactionNumber': this.impressionNo,
+      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0
+    };
+    const formData = new FormData();
+    formData.set('AutoProcess', JSON.stringify(param));
+    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/';
+      return this.http.post(apiUrl+this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+        (response: any) => {
+          if(response.data.AutoProcess[0].Illigible){
+            this.allValidation();
+          }else{
+            alert('Not Illigible');
+            this.impressionNo = '';
+          }
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+
+  }
+
+  ProductID:number=0;
+  AllValidationArrayColln:any=[];
+  AllValidationArray:any=[];
+  allValidation(){
+    const param = {
+      'SituationID': 1,
+      'TransactionNumber': this.impressionNo,
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0
+    };
+    const formData = new FormData();
+    formData.set('AutoProcess', JSON.stringify(param));
+    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/';
+      return this.http.post(apiUrl+this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+        (response: any) => {
+          // console.log(response.data.AutoProcess[0]);
+          this.AllValidationArray = response.data.AutoProcess;
+          for(let item of this.AllValidationArray){
+            this.AllValidationArrayColln.push(item);
+            // this.AllValidationArrayColln.length>0 ? this.AllValidationArrayColln[0].push(response.data.AutoProcess) : this.AllValidationArrayColln.push(response.data.AutoProcess)
+          }
+          console.log('array1: ',this.AllValidationArray);
+          console.log('array2: ',this.AllValidationArrayColln);
+          var AlertMsg = response.data.AutoProcess[0].AlertMsg;
+          this.ProductID = response.data.AutoProcess[0].ProductID;
+          if(AlertMsg.length<1){
+            if(this.arrayOfImpNo.length>0){
+              let ImpAdded = this.arrayOfImpNo.filter((item: string)=>item==this.impressionNo);
+              if(ImpAdded.length>0){
+                alert('Impression already added');
+              }
+              else{
+                this.arrayOfImpNo.push(this.impressionNo);
+                this.GetSkipProcess(); //next api call made
+              }
+            }else{
+              this.arrayOfImpNo.push(this.impressionNo);
+              this.GetSkipProcess(); //next api call made
+            }
+          }else{
+            alert(AlertMsg);
+            this.impressionNo = '';
+          }
+        },
+        (error) => {
+          console.error('Error:', error);
+        }
+      );
+  }
+
+  ListOfSkipProcess:any=[];
+  SkipProcessListColln:any=[];
+  oldImpNo:string='';
+  GetSkipProcess(){
+    this.ListOfSkipProcess=[];
+    const param = {
+      'SituationID': 2,
+      'TransactionNumber': this.impressionNo,
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
+      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
+      'ProductID': !this.utilsService.isNullUndefinedOrBlank(this.ProductID) ? this.ProductID : 0
+    };
+    const formData = new FormData();
+    formData.set('AutoProcess', JSON.stringify(param));
+    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/';
+    return this.http.post(apiUrl+this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+      (response: any) => {
+        console.log(response.data);
+        var SkipList = [];
+        SkipList = response.data.AutoProcess;
+        if(SkipList.length>0){
+          for(let item of SkipList){
+            this.SkipProcessListColln.push(item);
+          }
+          console.log('skipcolln: ',this.SkipProcessListColln);
+          SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.push(item.Process));
+          this.ListOfSkipProcess.pop();
+          if(SkipList.length>0){
+            this.openModal('messageModal');
+          }else{
+            this.openModal('confirmModal');
+          }
+          this.oldImpNo=this.impressionNo;
+          this.impressionNo = '';
+        }else{
+          this.openModal('confirmModal');
+          this.impressionNo = '';
+        }
+      },
+      (error) => {
+        console.error('Error:', error);
+      }
+    );
+  }
+
+  paramarray:any=[];
+  submit(){
+    for(let item of this.AllValidationArrayColln){
+      let temploop = this.SkipProcessListColln.filter((a: { Transactionnumber: any; })=>a.Transactionnumber==item.Transactionnumber);
+      for(let item1 of temploop){
+        const param = {
+          'SituationID': 3,
+          'TransactionNumber': item.Transactionnumber,
+          'DepartmentID': item1.DepartmentID,
+          'ProcessID': item1.ProcessID,
+          'ProductID': item.ProductID,
+          'JobDesignID': item.JobDesignID,
+          'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
+          'Employee': this.employee.name.toString().split(' - ')[0]
+        };
+        this.paramarray.push(param);
+        const formData = new FormData();
+        formData.set('AutoProcess', JSON.stringify(param));
+        const apiUrl = 'http://uat.illusiondentallab.com/API_2020/';
+          this.http.post(apiUrl+this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+            (response: any) => {
+              if(response.data.AutoProcess[0].Result=='Job Process Successfull'){
+                this.processing = 'Process Subbmitting...';
+                // alert(response.data.AutoProcess[0].Result);
+              }else{
+                alert('Something wrong.');
+                this.impressionNo = '';
+              }
+            },
+            (error) => {
+              console.error('Error:', error);
+            }
+          );
+      }
+      // let processid,departmentid;
+      // this.SkipProcessListColln.filter((data: { Transactionnumber: any; ProcessID: any; DepartmentID: any; })=>{if(data.Transactionnumber==item.TransactionNumber){processid=data.ProcessID; departmentid = data.DepartmentID;}});
+    }
+    console.log('paramarray:',this.paramarray);
+    this.processing ='';
+  }
+
+  cancelSkip(){
+    this.SkipProcessListColln = this.SkipProcessListColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=this.oldImpNo);
+    this.AllValidationArrayColln = this.AllValidationArrayColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=this.oldImpNo);
+    this.arrayOfImpNo = this.arrayOfImpNo.filter((item: string)=> item != this.oldImpNo);
+    // console.log('cancel:',this.SkipProcessListColln);
   }
 }

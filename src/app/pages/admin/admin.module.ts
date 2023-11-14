@@ -6,11 +6,15 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { SidebarComponent } from 'src/app/shared/components/sidebar/sidebar.component';
 // import { JobProcessComponent } from '../job-process/job-process.component';
 import { ArchwizardModule } from 'angular-archwizard';
+import { AuthGuard } from 'src/app/auth.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'work_area', pathMatch: "full" },
   {
-    path: 'work_area', component: AdminComponent, children: [
+    path: 'work_area', 
+    component: AdminComponent, 
+    canActivate: [AuthGuard],
+    children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: DashboardComponent },
       // { path: 'job-process', component: JobProcessComponent }

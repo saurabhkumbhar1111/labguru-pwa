@@ -69,8 +69,8 @@
     <div class="offcanvas-body d-flex flex-column align-items-sm-start justify-content-between">
         <div class="w-100">
             <div class="w-100 d-flex flex-column align-items-center mb-5 profile">
-                <img class="user-img" src="assets/images/1.jpg">
-                <h4>{{this.UserData.DisplayName}}</h4>
+                <img class="user-img" [src]="this.UserData.Profile">
+                <h4>{{this.UserData.LoginUser}}</h4>
                 <p>{{this.UserData.EmailID}}</p>
             </div>
             <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start w-100"

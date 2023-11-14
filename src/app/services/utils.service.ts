@@ -78,11 +78,37 @@ export class UtilsService {
         })
     }
 
-    postMethodAPI (formData : any, apiName : string) {
+    postMethodAPI1 (formData : any, apiName : string) {
         if (formData && apiName) {
             let headers = new HttpHeaders();
         }
     }
+    postMethodAPI(isDisplayToast:any, apiName:string, params:any, callback: (response: any, isRoute: boolean) => void, isCallbackRequired?: boolean, isFormData?: boolean, isLoaderRequired?: boolean, isApiUrlProvided?: boolean) {
+        if (!isLoaderRequired) {
+    
+          this.loaderStart++;
+        }
+        this.customJsonInclude(params);
+        let headers = new HttpHeaders();
+    
+        if (!isFormData) {
+    
+          headers = headers.set('Content-Type', 'application/json');
+        }
+    
+        //apiName = UtilsService.URL + apiName;
+        apiName = isApiUrlProvided ? apiName : UtilsService.URL + apiName;
+        return this.http.post(apiName, params, { headers: headers }).subscribe(response => {
+          if (!isLoaderRequired) {
+    
+            if (this.loaderStart > 0) {
+              this.loaderStart--;
+            }
+          }
+            this.loaderStart--;
+          }
+        );
+      }
 
     customJsonInclude(obj: any): void {
         for (const key in obj) {
@@ -176,10 +202,16 @@ export class UtilsService {
     getLoginUsers(): User | undefined {
         const userData = sessionStorage.getItem('user');
         if (userData) {
-            const user = Serialize(JSON.parse(userData), User);
+            const user = JSON.parse(userData);
             return user;
         }
         return undefined;
+
+        // const user = Serialize(JSON.parse(localStorage.getItem('user')), User);
+    // const user = Serialize(JSON.parse(sessionStorage.getItem('user')), User);
+    // if (user != null) {
+    //   return user;
+    // }
     }
 
     getIp() {

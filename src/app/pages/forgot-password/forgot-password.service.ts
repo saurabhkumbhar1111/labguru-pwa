@@ -20,19 +20,19 @@ export class ForgotPasswordService {
     const userNameControl = this.forgotPwdForm.get('UserName');
     if (userNameControl?.valid) {
       const param = {
-        'UserName': userNameControl.value
+        'Code': userNameControl.value
       };
-      const formData = new FormData();
-      formData.append('ForgotPassword', JSON.stringify(param));
-      this.postData(formData);
+      // const formData = new FormData();
+      // formData.append('ForgotPassword', JSON.stringify(param));
+      this.postData(param);
     }
   }
 
   postData(data: any) {
-    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/MobileApp/ForgotPassword';
+    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/Login/Profile_Forgot_Password';
     this.http.post(apiUrl, data).subscribe(
       (response: any) => {
-        return alert(response?.data?.ForgotPassword[0].Message);
+        return alert(response?.message);
       },
       (error) => {
         console.error('Error:', error);

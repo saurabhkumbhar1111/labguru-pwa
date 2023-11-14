@@ -7,7 +7,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 
 const routes: Routes = [

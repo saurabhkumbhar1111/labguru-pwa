@@ -22,5 +22,5 @@ export class ServerVariableService {
   getAllDropDownDataAPI = this.PATH_FOR_API + 'Common/GetCommonList';
   getAllDropDownDataAPI_new = this.PATH_FOR_API + 'Common/GetCommonList_New';
   GetJobEntry_CustomerAPI = this.PATH_FOR_API + 'JobEntry/GetJobEntry_Customer';
-
+  Validate_Process = this.PATH_FOR_API + 'JobProcess/AutoProcess';
 }

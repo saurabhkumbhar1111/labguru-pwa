@@ -18,6 +18,7 @@ export class LoginService {
   arrayOfData: any[] = [];
   loginResponse = new User();
   flagForPasswordHideShow: boolean | undefined;
+  ipAddress:any;
   hide = true;
   userOb = {
     code: undefined,
@@ -27,6 +28,7 @@ export class LoginService {
 
   constructor(private http: HttpClient, public utilsService: UtilsService, public storageService: StorageListnerService, public _formBuilder: FormBuilder, private route: ActivatedRoute) {
     this.flagForPasswordHideShow = true;
+    this.getIp();
     // this.utilsService.getIp();
     this.loginForm = this._formBuilder.group({
       code: ['', Validators.compose([Validators.required])],
@@ -40,44 +42,56 @@ export class LoginService {
       password: ['', Validators.compose([Validators.required])]
     });
   }
+  getIp() {
+    this.http.get<{ ip: string }>('https://api.ipify.org?format=json')
+      .subscribe(data => {
+        this.ipAddress = data;
+        return data.ip;
+      });
+  }
 
   loginAPI() {
     if (this.loginForm.valid) {
       const params = {
-        'UserName': this.userOb.code,
+        'Code': this.userOb.code,
         'Password': this.userOb.password,
-        'SituationID': 1,
-        'UUID': 230221
+        'Ip':this.ipAddress.ip
       }
-      const formData = new FormData();
-      formData.append('Login', JSON.stringify(params));
+      // const params = {
+      //   'UserName': this.userOb.code,
+      //   'Password': this.userOb.password,
+      //   'SituationID': 1,
+      //   'UUID': 230221
+      // }
+      // const formData = new FormData();
+      // formData.append('Login', JSON.stringify(params));
 
       // this.utilsService.postMethodAPI(false, this.utilsService.serverVariableService.PostLoginAPI, formData, (response, isResponseOnPage) => {
       //   this.loginResponse = Deserialize(response['Login_Data'], User);
       //   const token = response['Token'];
       // }
       // );
-      this.postData(formData)
+      this.postData(params)
     }
   }
-
+  
   postData(data: any) {
-    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/MobileApp/Login';
+    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/Login/PostLogin';
     return this.http.post(apiUrl, data).subscribe(
       (response: any) => {
-        const { LoginUserID, LoginUserCode, LoginUser, EmailID, DisplayName} = response?.data?.Login[0]
+        const { LoginUserID, LoginUserCode, LoginUser, EmailID, Profile} = response?.data?.Login_Data
         const userData: any = {
           LoginUserID,
           LoginUserCode,
           LoginUser,
           EmailID,
-          DisplayName
+          Profile
         };
-        if (response?.data?.Login[0].Message === "Success") {
+        if (response?.data?.Login_Data.ValidationMsg == "") {
           this.setLocalStorage(userData)
           this.utilsService.redirectTo('/admin/work_area/home');
         } else {
-          alert("Error: " + (response?.data?.Login[0]?.Message || "Something went Wrong"));
+          alert("Error: " + (response?.data?.Login_Data.ValidationMsg || "Something went Wrong"));
         }
       },
       (error) => {
