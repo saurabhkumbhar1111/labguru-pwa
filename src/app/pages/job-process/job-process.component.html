@@ -40,7 +40,7 @@
           </div>
           <div>
             <footer style="text-align: right;">
-              <button type="button" class="btn btn-danger " awPreviousStep>Previous</button>
+              <button type="button" class="btn btn-danger " (click)="this.isSettingEnabled = true;this.clearArray();" awPreviousStep>Previous</button>
               <!-- <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled" (click)="validateProcess()"  >Add</button> -->
               <!-- <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="isNextEnabled" awNextStep>Next</button> -->
               <button type="button" class="btn btn-success" style="margin-left: 20px;" [disabled]="this.arrayOfImpNo.length==0" awNextStep>Next</button>

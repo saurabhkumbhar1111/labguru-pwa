@@ -76,7 +76,7 @@ export class LoginService {
   }
   
   postData(data: any) {
-    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/Login/PostLogin';
+    const apiUrl = 'https://uat.illusiondentallab.com/API_2020/api/Login/PostLogin';
     return this.http.post(apiUrl, data).subscribe(
       (response: any) => {
         const { LoginUserID, LoginUserCode, LoginUser, EmailID, Profile} = response?.data?.Login_Data

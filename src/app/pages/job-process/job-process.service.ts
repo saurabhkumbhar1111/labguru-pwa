@@ -71,7 +71,7 @@ export class JobProcessService {
 
   }
   postDropdownData(data:any){
-    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/Common/GetCommonList';
+    const apiUrl = 'https://uat.illusiondentallab.com/API_2020/api/Common/GetCommonList';
     return this.http.post(apiUrl, data).subscribe(
       (response: any) => {
         this.arrayForDepartmentList = response.data.Department_DDL;
@@ -79,14 +79,13 @@ export class JobProcessService {
         if(this.cookieService.get('LocationID')!=="undefined" && this.cookieService.get('LocationID')!==""){
             this.arrayForLocationList.filter((item)=>{if(item.id ==this.cookieService.get("LocationID")){
               this.LocationID = item;
-              this.Location=JSON.stringify(this.LocationID.name);
-          
+              this.Location=JSON.stringify(this.LocationID.name).replace(/"/g, '');
             }});
         }
         if(this.cookieService.get('DepartmentID')!=="undefined" && this.cookieService.get('DepartmentID')!==""){
           this.arrayForDepartmentList.filter((item)=>{if(item.id ==this.cookieService.get("DepartmentID")){
             this.DepartmentID = item;
-            this.Department=JSON.stringify(this.DepartmentID.name);
+            this.Department=JSON.stringify(this.DepartmentID.name).replace(/"/g, '');
             this.onSelectDepartment();
 
           }});
@@ -122,14 +121,14 @@ export class JobProcessService {
     }
     // }
     postProcess(data:any){
-      const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/Common/GetCommonList_New';
+      const apiUrl = 'https://uat.illusiondentallab.com/API_2020/api/Common/GetCommonList_New';
       return this.http.post(apiUrl,data).subscribe(
         (response: any) => {
          this.arrayForProcessList =response.data.Data;
          if(this.cookieService.get('ProcessID')!=="undefined" && this.cookieService.get('ProcessID')!==""){
           this.arrayForProcessList.filter((item)=>{if(item.id ==this.cookieService.get("ProcessID")){
             this.ProcessID = item;
-            this.Process=JSON.stringify(this.ProcessID.name);
+            this.Process=JSON.stringify(this.ProcessID.name).replace(/"/g, '');
   
           }});
       }
@@ -171,7 +170,7 @@ export class JobProcessService {
       this.postData(param,id)
     }
     postData(data: any,id:number) {
-      const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/JobEntry/GetJobEntry_Customer';
+      const apiUrl = 'https://uat.illusiondentallab.com/API_2020/api/JobEntry/GetJobEntry_Customer';
       return this.http.post(apiUrl, data).subscribe(
         (response: any) => {
          this.arryforEmployee = [...response.data.Customer];
@@ -229,7 +228,7 @@ export class JobProcessService {
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
-    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/';
+    const apiUrl = 'https://uat.illusiondentallab.com/API_2020/';
       return this.http.post(apiUrl+this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
         (response: any) => {
           if(response.data.AutoProcess[0].Illigible){
@@ -257,7 +256,7 @@ export class JobProcessService {
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
-    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/';
+    const apiUrl = 'https://uat.illusiondentallab.com/API_2020/';
       return this.http.post(apiUrl+this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
         (response: any) => {
           // console.log(response.data.AutoProcess[0]);
@@ -309,7 +308,7 @@ export class JobProcessService {
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
-    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/';
+    const apiUrl = 'https://uat.illusiondentallab.com/API_2020/';
     return this.http.post(apiUrl+this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
       (response: any) => {
         console.log(response.data);
@@ -322,7 +321,7 @@ export class JobProcessService {
           console.log('skipcolln: ',this.SkipProcessListColln);
           SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.push(item.Process));
           this.ListOfSkipProcess.pop();
-          if(SkipList.length>0){
+          if(SkipList.length>1){
             this.openModal('messageModal');
           }else{
             this.openModal('confirmModal');
@@ -353,12 +352,13 @@ export class JobProcessService {
           'ProductID': item.ProductID,
           'JobDesignID': item.JobDesignID,
           'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
-          'Employee': this.employee.name.toString().split(' - ')[0]
+          'EmployeeCode': this.employee.name.toString().split(' - ')[0],
+          'LocationID': this.LocationID.id ? this.LocationID.id : 0
         };
         this.paramarray.push(param);
         const formData = new FormData();
         formData.set('AutoProcess', JSON.stringify(param));
-        const apiUrl = 'http://uat.illusiondentallab.com/API_2020/';
+        const apiUrl = 'https://uat.illusiondentallab.com/API_2020/';
           this.http.post(apiUrl+this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
             (response: any) => {
               if(response.data.AutoProcess[0].Result=='Job Process Successfull'){

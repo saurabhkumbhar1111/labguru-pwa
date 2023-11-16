@@ -29,7 +29,7 @@ export class ForgotPasswordService {
   }
 
   postData(data: any) {
-    const apiUrl = 'http://uat.illusiondentallab.com/API_2020/api/Login/Profile_Forgot_Password';
+    const apiUrl = 'https://uat.illusiondentallab.com/API_2020/api/Login/Profile_Forgot_Password';
     this.http.post(apiUrl, data).subscribe(
       (response: any) => {
         return alert(response?.message);
