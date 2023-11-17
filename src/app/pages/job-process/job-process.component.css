@@ -86,3 +86,12 @@ label{
 .p-inputtext{
   font-size: 15px;
 }
+zxing-scanner {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}
+.overflow{
+  height: 60vh;
+    overflow: auto;
+}

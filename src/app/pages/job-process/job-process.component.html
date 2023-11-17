@@ -32,7 +32,10 @@
         </aw-wizard-step> -->
         <aw-wizard-step style="list-style: none; " >
           <div>
-            <div  class="rounded border border-secondary p-5 mb-3">Scan Impression No.</div>
+            <div  class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Impression No.</div>
+            <!-- <div  class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner    [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
+              (scanSuccess)="handleScan($event)" [formats]="allowedFormats">
+              </zxing-scanner></div> -->
             <div class="input-group input-group-sm mb-3">
               <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small" placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
               <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled" (click)="validateProcess()"  >Add</button>
@@ -50,9 +53,11 @@
         <aw-wizard-step style="list-style: none;">
           <div>
             <div  class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
+           <div class="overflow">
             <div class="input-group input-group-sm mb-3" *ngFor="let item of arrayOfImpNo">
               {{item}}
             </div>
+           </div>
               {{this.processing}}
           </div>
           <div>
@@ -145,10 +150,8 @@
         <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2"(click)="closeModal('messageModal')"
         data-dismiss="modal" title="Close" style="background: none;color: black;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="modal-body" >
-        <p>
-          Below Are/Is Skip Process List:
-        </p>
+      <div class="modal-body overflow" >
+       <b>Below Are/Is Skip Process List:</b>
         <p *ngFor="let item of ListOfSkipProcess">
           {{item}}
         </p>
@@ -191,7 +194,7 @@
           <h3 class="mb-3">Are you sure ? <br /> You want to Continue ..</h3>
           <button type="button" class="btn btn-danger mr-5" data-dismiss="modal"
           (click)="closeModal('deleteConfirmationModal')">No</button>
-          <button type="button" class="btn btn-success" (click)="closeModal('deleteConfirmationModal');this.isFooterEnabled=false;this.submit();">Yes</button>
+          <button type="button" class="btn btn-success" style="margin-left:20px ;" (click)="closeModal('deleteConfirmationModal');this.isFooterEnabled=false;this.syncSubmit();">Yes</button>
         </div>
       </div>
     </div>

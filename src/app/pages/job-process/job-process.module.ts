@@ -8,7 +8,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
 const routes: Routes = [
   {
     path: '',
@@ -28,7 +28,8 @@ const routes: Routes = [
     DropdownModule,
     ConfirmDialogModule,
     ToastModule,
-    AutoCompleteModule 
+    AutoCompleteModule,
+    ZXingScannerModule
   ]
 })
 export class JobProcessModule { }
