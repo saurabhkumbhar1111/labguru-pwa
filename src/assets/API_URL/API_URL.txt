@@ -1,1 +1,1 @@
-http://uat.illusiondentallab.com/API_2020/api/
+https://uat.illusiondentallab.com/API_2020/api/

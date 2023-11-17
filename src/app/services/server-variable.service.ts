@@ -10,16 +10,19 @@ export class ServerVariableService {
   static RX_TYPE = 'RxType';
   static OU = 'OU';
   static LOCATION = 'Location';
+  
 
+  //URL
+  URL = 'https://uat.illusiondentallab.com/API_2020/';
   // PATH For API
 
-  PATH_FOR_API = 'api/';
+  PATH_FOR_API = this.URL+'api/';
 
   // API for Login and Logout
 
-  PostLoginAPI = this.PATH_FOR_API + 'MobileApp/Login';
-  PostForgotPasswordAPI = this.PATH_FOR_API + 'MobileApp/ForgotPassword';
-  getAllDropDownDataAPI = this.PATH_FOR_API + 'Common/GetCommonList';
+  PostLoginAPI = this.PATH_FOR_API + 'Login/PostLogin';
+  PostForgotPasswordAPI = this.PATH_FOR_API + 'Login/Profile_Forgot_Password';
+  GetCommonList = this.PATH_FOR_API + 'Common/GetCommonList';
   getAllDropDownDataAPI_new = this.PATH_FOR_API + 'Common/GetCommonList_New';
   GetJobEntry_CustomerAPI = this.PATH_FOR_API + 'JobEntry/GetJobEntry_Customer';
   Validate_Process = this.PATH_FOR_API + 'JobProcess/AutoProcess';
