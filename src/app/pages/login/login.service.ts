@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 import { User } from '../../../model/User';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-
+import { MessageService } from 'primeng/api';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +26,7 @@ export class LoginService {
   };
   Impression: string | undefined;
 
-  constructor(private http: HttpClient, public utilsService: UtilsService, public storageService: StorageListnerService, public _formBuilder: FormBuilder, private route: ActivatedRoute) {
+  constructor(private http: HttpClient, public utilsService: UtilsService, public storageService: StorageListnerService, public _formBuilder: FormBuilder, private route: ActivatedRoute,private messageService: MessageService) {
     this.flagForPasswordHideShow = true;
     this.getIp();
     // this.utilsService.getIp();
@@ -76,6 +76,7 @@ export class LoginService {
   }
   
   postData(data: any) {
+    this.utilsService.loaderStart--;
     return this.http.post(this.utilsService.serverVariableService.PostLoginAPI, data).subscribe(
       (response: any) => {
         const { LoginUserID, LoginUserCode, LoginUser, EmailID, Profile} = response?.data?.Login_Data
@@ -90,8 +91,11 @@ export class LoginService {
           this.setLocalStorage(userData)
           this.utilsService.redirectTo('/admin/work_area/home');
         } else {
-          alert("Error: " + (response?.data?.Login_Data.ValidationMsg || "Something went Wrong"));
+          // alert("Error: " + (response?.data?.Login_Data.ValidationMsg || "Something went Wrong"));
+    // this.utilsService.toaster('warn',(response?.data?.Login_Data.ValidationMsg || "Something went Wrong"));
+    this.messageService.add({ severity: 'warn', summary: 'Warn', detail: (response?.data?.Login_Data.ValidationMsg || "Something went Wrong") });
         }
+        this.utilsService.loaderStart = 0;
       },
       (error) => {
         console.error('Error:', error);

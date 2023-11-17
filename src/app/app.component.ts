@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { UtilsService } from './services/utils.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'SelfServe-MobileApp';
+  constructor( public utilsService: UtilsService){
+
+  }
 }
