@@ -207,14 +207,19 @@ export class JobProcessService {
     this.cookieService.set("LocationID",this.LocationID.id.toString(),this.expiryCookiesDate);
     this.cookieService.set("DepartmentID",this.DepartmentID.id.toString(),this.expiryCookiesDate);
     this.cookieService.set("ProcessID",this.ProcessID.id.toString(),this.expiryCookiesDate);
-    this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate);
-    this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate);
+    !this.utilsService.isNullUndefinedOrBlank(this.employee) ? this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate):'';
+    !this.utilsService.isNullUndefinedOrBlank(this.employee) ?this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate):'';
     this.Location=JSON.stringify(this.LocationID.name);
     this.Department=JSON.stringify(this.DepartmentID.name);
     this.Process=JSON.stringify(this.ProcessID.name);
   }
 
   validateProcess(){
+    let ImpAdded = this.arrayOfImpNo.filter((item: string)=>item==this.impressionNo);
+    if(ImpAdded.length>0){
+      this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Impression already added' });
+      return;
+    }
     const param = {
       'SituationID': 0,
       'TransactionNumber': this.impressionNo,
@@ -478,14 +483,21 @@ export class JobProcessService {
     this.selectedDevice = devices[0];
   }
 
-  handleScan(result:any):void{
+  handleScanImpression(result:any):void{
     if (result) {
       this.scannedData = result;
       this.impressionNo = this.scannedData;
-      //console.log(this.scannedData);
       this.stopScanner(); 
       this.validateProcess();
+    }
+  }
 
+  handleScanEmployee(result:any):void{
+    if (result) {
+      this.scannedData = result;
+      console.log(this.scannedData);
+      this.getMockEmployee(this.scannedData,1);
+      this.stopScanner(); 
     }
   }
 

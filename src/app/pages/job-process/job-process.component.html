@@ -19,27 +19,37 @@
         <!-- <footer style="text-align: right;"><button type="button" class="btn btn-success " (click)="this.isSettingEnabled =false" [awGoToStep]="{stepIndex:1}">Next</button></footer> -->
 
       </aw-wizard-step>
-      <!-- <aw-wizard-step style="list-style: none; "  >
-          <div>
-            <div  class="rounded border border-secondary p-5 mb-3">Scan Employee Barcode</div>
-            <div class="input-group input-group-sm mb-3">
-              <input type="text" class="form-control" aria-label="Small" placeholder="Type Employee Code" aria-describedby="inputGroup-sizing-sm">
-            </div>
+      <aw-wizard-step style="list-style: none; ">
+        <div>
+          <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Employee</div>
+          <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
+              [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
+              (scanSuccess)="handleScanEmployee($event)" [formats]="allowedFormats">
+            </zxing-scanner></div>
+          <div class="input-group input-group-sm mb-3">
+            <!-- <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
+              placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
+            <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled"
+              (click)="validateProcess()">Add</button> -->
+              <!-- <label class="mb-1" style='margin-right:15px'>Employee :</label><br> -->
+              <p-autoComplete [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
+                (completeMethod)="search($event)" placeholder="Enter Employee" field="name"></p-autoComplete>
           </div>
+        </div>
           <div>
             <footer style="text-align: right;">
-              <button type="button" class="btn btn-danger" (click)="this.isSettingEnabled = true" awPreviousStep>Previous</button>
-              <button type="button" class="btn btn-success" style="margin-left: 20px;" awNextStep>Next</button>
+              <button type="button" class="btn btn-danger" (click)="this.isSettingEnabled = true" [disabled]="isScannerEnabled" awPreviousStep>Previous</button>
+              <button type="button" class="btn btn-success" style="margin-left: 20px;" [disabled]="isScannerEnabled || !employee" awNextStep>Next</button>
             </footer>
           </div>
-        </aw-wizard-step> -->
+      </aw-wizard-step>
       <aw-wizard-step style="list-style: none; ">
         <div>
           <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Impression
             No.</div>
           <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
               [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
-              (scanSuccess)="handleScan($event)" [formats]="allowedFormats">
+              (scanSuccess)="handleScanImpression($event)" [formats]="allowedFormats">
             </zxing-scanner></div>
           <div class="input-group input-group-sm mb-3">
             <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
@@ -50,12 +60,10 @@
         </div>
         <div>
           <footer style="text-align: right;">
-            <button type="button" class="btn btn-danger " (click)="this.isSettingEnabled = true;this.clearArray();"
-              awPreviousStep>Previous</button>
-            <!-- <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled" (click)="validateProcess()"  >Add</button> -->
-            <!-- <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="isNextEnabled" awNextStep>Next</button> -->
+            <button type="button" class="btn btn-danger " (click)="this.clearArray();this.isSettingEnabled = false"
+            [disabled]="isScannerEnabled" awPreviousStep>Previous</button>
             <button type="button" class="btn btn-success" style="margin-left: 20px;"
-              [disabled]="this.arrayOfImpNo.length==0" awNextStep>Next</button>
+              [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled" awNextStep>Next</button>
           </footer>
         </div>
       </aw-wizard-step>
@@ -127,7 +135,7 @@
         <div class="row col-md-4 justify-content-end  ">
           <button type="button" class="btn btn-success" style="background-color: #18A3E4 !important;"
             (click)="closeModal('mymodal');onSubmitSettingModal()"
-            [disabled]="!(LocationID&&ProcessID&&DepartmentID&&employee)">Submit</button>
+            [disabled]="!(LocationID&&ProcessID&&DepartmentID)">Submit</button>
         </div>
       </div>
     </div>
