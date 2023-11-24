@@ -148,8 +148,10 @@ export class JobProcessService {
   }
   
   search(search :any) {
-    this.getMockEmployee(search.query,0);
-    }
+    // if(search.length>=4){
+      this.getMockEmployee(search.query,0);
+    // }
+  }
 
     getMockEmployee(term:any,id:number){
       const param = {
@@ -159,7 +161,7 @@ export class JobProcessService {
         'LoginCompanyID':1,
         'LoginUserID':1,
         'LoginReferenceID':864, 
-        'innerSituationID': 46
+        'innerSituationID': 69
       };
       this.postData(param,id)
     }
@@ -177,12 +179,34 @@ export class JobProcessService {
       );
       
     }
-    selectedEmployee :any;
-    onSelectEmployee(){
-  this.selectedEmployee = this.arryforEmployee.find((item: { id: number; }) =>item.id ==this.employee.id)
- //console.log(this.selectedEmployee);
-  
-}
+  selectedEmployee :any;
+  onSelectEmployee(){
+    this.selectedEmployee = this.arryforEmployee.find((item: { id: number; }) =>item.id ==this.employee.id)
+    //console.log(this.selectedEmployee);
+    this.validateEmployee();
+  }
+
+  validateEmployee(){
+    const param = {
+      'SituationID': 4,
+      'EmployeeCode': this.employee.name.toString().split(' - ')[0],
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0
+    };
+    const formData = new FormData();
+    formData.set('AutoProcess', JSON.stringify(param));
+      return this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+        (response: any) => {
+          if(this.utilsService.isNullUndefinedOrBlank(response.data.AutoProcess[0])){
+            this.employee='';
+            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'No record found.' });
+          }
+        },
+        (error) => {
+          //console.error('Error:', error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
+        }
+      );
+  }
 
   addImpressionNo(){
    this.arrayOfImpNo.push(this.impressionNo);
@@ -233,7 +257,7 @@ export class JobProcessService {
             this.allValidation();
           }else{
             // alert('Not Illigible '+this.impressionNo);
-            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ('Not Illigible '+this.impressionNo)});
+            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ('This case is not eligible for this process.')});
             this.impressionNo = '';
           }
         },
@@ -264,7 +288,7 @@ export class JobProcessService {
             this.AllValidationArrayColln.push(item);
             // this.AllValidationArrayColln.length>0 ? this.AllValidationArrayColln[0].push(response.data.AutoProcess) : this.AllValidationArrayColln.push(response.data.AutoProcess)
           }
-          //console.log('array1: ',this.AllValidationArray);
+          console.log('array1: ',this.AllValidationArray);
           //console.log('array2: ',this.AllValidationArrayColln);
           var AlertMsg = response.data.AutoProcess[0].AlertMsg;
           this.ProductID = response.data.AutoProcess[0].ProductID;
@@ -299,46 +323,73 @@ export class JobProcessService {
   oldImpNo:string='';
   GetSkipProcess(){
     this.ListOfSkipProcess=[];
-    const param = {
-      'SituationID': 2,
-      'TransactionNumber': this.impressionNo,
-      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
-      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
-      'ProductID': !this.utilsService.isNullUndefinedOrBlank(this.ProductID) ? this.ProductID : 0
-    };
-    const formData = new FormData();
-    formData.set('AutoProcess', JSON.stringify(param));
-    return this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
-      (response: any) => {
-        //console.log(response.data);
-        var SkipList = [];
-        SkipList = response.data.AutoProcess;
-        if(SkipList.length>0){
-          for(let item of SkipList){
-            this.SkipProcessListColln.push(item);
-          }
-          //console.log('skipcolln: ',this.SkipProcessListColln);
-          SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.push(item.Process));
-          this.ListOfSkipProcess.pop();
-          if(SkipList.length>1){
-            this.openModal('messageModal');
+    for(let item of this.AllValidationArray){
+      const param = {
+        'SituationID': 2,
+        'TransactionNumber': this.impressionNo,
+        'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
+        'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
+        'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
+      };
+      const formData = new FormData();
+      formData.set('AutoProcess', JSON.stringify(param));
+      this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+        (response: any) => {
+          //console.log(response.data);
+          var SkipList = [];
+          SkipList = response.data.AutoProcess;
+          if(SkipList.length>0){
+            for(let item of SkipList){
+              this.SkipProcessListColln.push(item);
+            }
+            console.log('skipcolln: ',this.SkipProcessListColln);
+            SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
+            this.ListOfSkipProcess.pop();
+            if(SkipList.length>1){
+              this.openModal('messageModal');
+            }else{
+              // this.openModal('confirmModal');
+            }
+            this.oldImpNo=this.impressionNo;
+            this.impressionNo = '';
           }else{
-            this.openModal('confirmModal');
+            const param = {
+              'SituationID': 5,
+              'TransactionNumber': this.impressionNo,
+              'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
+              'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
+              'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
+            };
+            const formData = new FormData();
+            formData.set('AutoProcess', JSON.stringify(param));
+              this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+                (response: any) => {
+                  if(response.data.AutoProcess.ErrorMsg){
+                    this.arrayOfImpNo.pop(this.impressionNo);
+                    this.messageService.add({ severity: 'warn', summary: 'Warn', detail: response.data.AutoProcess.ErrorMsg });
+                  }
+                  else{
+                    this.reworkProcessColln.length>0 ? this.reworkProcessColln.push(...item) : this.reworkProcessColln.push(item);
+                    //console.log('reworkProcessColln:',this.reworkProcessColln);
+                    // this.openModal('confirmModal');
+                    this.impressionNo = '';
+                  }
+                },
+                (error) => {
+                  //console.error('Error:', error);
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
+                }
+              );
           }
-          this.oldImpNo=this.impressionNo;
-          this.impressionNo = '';
-        }else{
-          this.reworkProcessColln.push(...this.AllValidationArray);
-          //console.log('reworkProcessColln:',this.reworkProcessColln);
-          this.openModal('confirmModal');
-          this.impressionNo = '';
+        },
+        (error) => {
+          //console.error('Error:', error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
         }
-      },
-      (error) => {
-        //console.error('Error:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
-      }
-    );
+      );
+    }
+    // this.openModal('confirmModal');
+    // return;
   }
 
   paramarray:any=[];
@@ -346,7 +397,7 @@ export class JobProcessService {
   async syncSubmit() {
     this.utilsService.loaderStart--;
     for(let item of this.AllValidationArrayColln){
-      let temploop = this.SkipProcessListColln.filter((a: { Transactionnumber: any; })=>a.Transactionnumber==item.Transactionnumber);
+      let temploop = this.SkipProcessListColln.filter((a: { Transactionnumber: any,ProductID:any})=>a.Transactionnumber==item.Transactionnumber && a.ProductID == item.ProductID);
       for(let item1 of temploop){
         await this.submit(item,item1);
       }
@@ -366,7 +417,7 @@ export class JobProcessService {
       'TransactionNumber': item.Transactionnumber,
       'DepartmentID': item1.DepartmentID,
       'ProcessID': item1.ProcessID,
-      'ProductID': item.ProductID,
+      'ProductID': item1.ProductID,
       'JobDesignID': item.JobDesignID,
       'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
       'EmployeeCode': this.employee.name.toString().split(' - ')[0],

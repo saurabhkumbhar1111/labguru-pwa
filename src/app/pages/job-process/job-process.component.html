@@ -57,6 +57,17 @@
             <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled"
               (click)="validateProcess()">Add</button>
           </div>
+          <div>
+            <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
+            <table class="table table-success table-striped">
+              <tbody>
+                <tr *ngFor="let item of arrayOfImpNo">
+                  <th scope="row">1</th>
+                  <td>{{item}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div>
           <footer style="text-align: right;">
@@ -68,14 +79,23 @@
         </div>
       </aw-wizard-step>
       <aw-wizard-step style="list-style: none;">
-        <div>
+        <div *ngIf="this.processing.length>0">
           <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
-          <div class="overflow">
+          <!-- <div class="overflow">
             <div class="input-group input-group-sm mb-3" *ngFor="let item of arrayOfImpNo">
               {{item}}
             </div>
-          </div>
-          {{this.processing}}
+          </div> -->
+          <table class="table table-success table-striped">
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <div>
           <footer style="text-align: right;" *ngIf="isFooterEnabled">
