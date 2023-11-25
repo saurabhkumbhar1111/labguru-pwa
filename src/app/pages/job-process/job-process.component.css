@@ -87,11 +87,50 @@ label{
   font-size: 15px;
 }
 zxing-scanner {
-  width: 100%;
-  max-width: 300px;
+  max-width: 200px;
+  height: 150px;
   margin: 0 auto;
-}
+  }
 .overflow{
   height: 60vh;
     overflow: auto;
 }
+
+.btnPrevious{
+  margin-right: 130px !important;
+  margin-left: 10px;
+ }
+ @media only screen and (min-width: 390px) {
+
+  .btnPrevious{
+    margin-right: 180px;
+   }
+}
+@media only screen and (min-width: 375px) {
+
+  .btnPrevious{
+    margin-right: 190px;
+   }
+}
+
+.centered-content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  }
+  .card {
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 300px;
+  } 
+  .table-container {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  :host ::ng-deep .p-modalDropDown {
+    width: 300px; /* Replace '300px' with your desired width */
+   }

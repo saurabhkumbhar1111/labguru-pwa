@@ -1,12 +1,19 @@
 <div>
+  <!-- <div style="text-align: right;">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" (click)="openModal('mymodal')"
+      data-target="#mymodal" *ngIf="isSettingEnabled" style="margin-right: 20px;border: none;background-color:white;color: black;"><i class="fa-sharp fa-solid fa-gear"></i>
+    </button>
+  </div> -->
   <div style="text-align: right;">
-    <button type="button" class="btn btn-primary" data-toggle="modal" (click)="openModal('mymodal')"
-      data-target="#mymodal" *ngIf="isSettingEnabled"><i class="fa-sharp fa-solid fa-gear"></i>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+      style="margin-right: 20px;border: none;background-color: white;" data-bs-target="#mymodal"
+      (click)="openModal('mymodal')" *ngIf="isSettingEnabled">
+      <i class="fa-sharp fa-solid fa-gear" style="color: black;"></i>
     </button>
   </div>
   <div class="d-flex justify-content-center">
     <aw-wizard>
-      <aw-wizard-step>
+      <!-- <aw-wizard-step>
         <div>
           <p>Location: <b> {{this.Location}}</b></p>
           <p>Department: <b> {{this.Department}}</b></p>
@@ -15,99 +22,85 @@
         <footer style="text-align: right;"><button type="button" class="btn btn-success "
             (click)="this.isSettingEnabled =false"
             [disabled]="this.utilsService.isNullUndefinedOrBlank(this.ProcessID) && this.utilsService.isNullUndefinedOrBlank(this.DepartmentID)&& this.utilsService.isNullUndefinedOrBlank(this.LocationID)"
-            awNextStep>Next</button></footer>
-        <!-- <footer style="text-align: right;"><button type="button" class="btn btn-success " (click)="this.isSettingEnabled =false" [awGoToStep]="{stepIndex:1}">Next</button></footer> -->
+            awNextStep>Next</button></footer> -->
+      <!-- <footer style="text-align: right;"><button type="button" class="btn btn-success " (click)="this.isSettingEnabled =false" [awGoToStep]="{stepIndex:1}">Next</button></footer> -->
 
-      </aw-wizard-step>
-      <aw-wizard-step style="list-style: none; ">
-        <div>
-          <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Employee</div>
-          <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
-              [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
-              (scanSuccess)="handleScanEmployee($event)" [formats]="allowedFormats">
-            </zxing-scanner></div>
-          <div class="input-group input-group-sm mb-3">
-            <!-- <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
-              placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
-            <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled"
-              (click)="validateProcess()">Add</button> -->
-              <!-- <label class="mb-1" style='margin-right:15px'>Employee :</label><br> -->
-              <p-autoComplete [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
-                (completeMethod)="search($event)" placeholder="Enter Employee" field="name"></p-autoComplete>
-          </div>
-        </div>
-          <div>
-            <footer style="text-align: right;">
-              <button type="button" class="btn btn-danger" (click)="this.isSettingEnabled = true" [disabled]="isScannerEnabled" awPreviousStep>Previous</button>
-              <button type="button" class="btn btn-success" style="margin-left: 20px;" [disabled]="isScannerEnabled || !employee" awNextStep>Next</button>
-            </footer>
-          </div>
-      </aw-wizard-step>
-      <aw-wizard-step style="list-style: none; ">
-        <div>
-          <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Impression
-            No.</div>
-          <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
-              [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
-              (scanSuccess)="handleScanImpression($event)" [formats]="allowedFormats">
-            </zxing-scanner></div>
-          <div class="input-group input-group-sm mb-3">
-            <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
-              placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
-            <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled"
-              (click)="validateProcess()">Add</button>
-          </div>
-          <div>
-            <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
-            <table class="table table-success table-striped">
-              <tbody>
-                <tr *ngFor="let item of arrayOfImpNo">
-                  <th scope="row">1</th>
-                  <td>{{item}}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div>
-          <footer style="text-align: right;">
-            <button type="button" class="btn btn-danger " (click)="this.clearArray();this.isSettingEnabled = false"
-            [disabled]="isScannerEnabled" awPreviousStep>Previous</button>
-            <button type="button" class="btn btn-success" style="margin-left: 20px;"
-              [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled" awNextStep>Next</button>
-          </footer>
-        </div>
-      </aw-wizard-step>
-      <aw-wizard-step style="list-style: none;">
-        <div *ngIf="this.processing.length>0">
-          <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
-          <!-- <div class="overflow">
-            <div class="input-group input-group-sm mb-3" *ngFor="let item of arrayOfImpNo">
-              {{item}}
+      <!-- </aw-wizard-step> -->
+      <aw-wizard-step >
+        <div class="centered-content">
+          <div class="card">
+            <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Employee
             </div>
-          </div> -->
-          <table class="table table-success table-striped">
-            <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-              </tr>
-            </tbody>
-          </table>
+            <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
+                [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
+                (scanSuccess)="handleScanEmployee($event)" [formats]="allowedFormats">
+              </zxing-scanner></div>
+            <div class="input-group input-group-sm mb-3">
+              <p-autoComplete [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
+                (completeMethod)="search($event)" placeholder="Enter Employee" field="name"  styleClass="myclass"></p-autoComplete>
+            </div>
+          </div>
         </div>
         <div>
-          <footer style="text-align: right;" *ngIf="isFooterEnabled">
-            <button type="button" class="btn btn-success" style="margin-left: 10px;"
-              (click)="openModal('deleteConfirmationModal')">Submit</button>
-            <button type="button" class="btn btn-danger" style="margin-left: 10px;" (click)="clearArray()"
-              awResetWizard>Cancel</button>
+          <footer>
+            <!-- <button type="button" class="btn btn-danger" (click)="this.isSettingEnabled = true" [disabled]="isScannerEnabled" awPreviousStep>Previous</button> -->
+            <button type="button" class="btn btn-success step1footer" [disabled]="isScannerEnabled || !employee" (click)="this.isSettingEnabled = false"
+              awNextStep>Next</button>
           </footer>
-          <footer style="text-align: right;" *ngIf="!isFooterEnabled">
-            <h6 style="color: green; text-align: center;margin-left: -20px;" >{{Donemessage}}</h6>
-            <button type="button" class="btn btn-danger" style="margin-left: 10px;"
-              (click)="finishFunction();this.isFooterEnabled=false;clearArray();" awResetWizard>OK</button>
+        </div>
+      </aw-wizard-step>
+      <aw-wizard-step>
+        <div class="centered-content">
+          <div class="card">
+            <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan
+              Impression
+              No.</div>
+            <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
+                [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
+                (scanSuccess)="handleScanImpression($event)" [formats]="allowedFormats">
+              </zxing-scanner>
+            </div>
+            <div class="input-group input-group-sm mb-3">
+              <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
+                placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
+              <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled"
+                (click)="validateProcess()">Add</button>
+            </div>
+           <div *ngIf="impressionNoList">
+            <div class="table-container" >
+              <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
+              <table class="table table-success table-striped">
+                <tbody>
+                  <tr *ngFor="let item of arrayOfImpNo; let i = index">
+                    <td><span (click)="removeItem(i)"><i class="fa fa-trash" style="color: red; margin-right: 20px;"
+                          aria-hidden="true"></i></span>{{item}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+           </div>
+          </div>
+        </div>
+        <div>
+          <!-- <footer style="text-align: right;">
+            <button type="button" class="btn btn-danger " (click)="this.clearArray();this.isSettingEnabled = false"
+              [disabled]="isScannerEnabled" awPreviousStep>Previous</button>
+             <button type="button" class="btn btn-success" style="margin-left: 20px;"
+              [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled" awNextStep>Next</button>
+          </footer> -->
+          <footer style="text-align: right;" *ngIf="isFooterEnabled">
+            <button type="button" class="btn btn-danger btnPrevious"
+              (click)="this.clearArray();this.isSettingEnabled = true" [disabled]="isScannerEnabled"
+              awPreviousStep>Previous</button>
+            <button type="button" class="btn btn-success" (click)="openModal('deleteConfirmationModal')"
+              [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled">Submit</button>
+          </footer>
+          <footer *ngIf="!isFooterEnabled" style="display: flex; justify-content: center; align-items: center;">
+            <div>
+              <h6 style="color: green !important; text-align: center; margin-left: 80px;">{{Donemessage}}</h6>
+              <button type="button" class="btn btn-danger" style="margin-top: 10px;margin-left: 120px;"
+                (click)="isFooterEnabled=false; clearArray();" awResetWizard>OK</button>
+            </div>
           </footer>
         </div>
       </aw-wizard-step>
@@ -116,14 +109,13 @@
 </div>
 <p-toast position="top-center"></p-toast>
 <!-- setting Modal -->
-<div class="modal" aria-labelledby="exampleModalCenterTitle" id="mymodal" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade" id="mymodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title ml-4 justify-content-start d-flex" style="color: white" id="exampleModalLongTitle">Set
-          Values</h5>
-        <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('mymodal')"
-          data-dismiss="modal" title="Close" style="background: none;"><i class="fa-solid fa-xmark"></i></button>
+        <h6 class="modal-title fs-5" id="exampleModalLabel" style="color: white">Set Values</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+          (click)="closeModal('mymodal')"></button>
       </div>
       <div class="modal-body">
         <div class="justify-content-center">
@@ -145,22 +137,22 @@
               placeholder="Select a Process" [filter]="true" optionLabel="name" [disabled]="!processJob"></p-dropdown>
           </div>
           <div class="d-flex">
-            <label class="mb-1" style='margin-right:15px'>Employee :</label><br>
-            <p-autoComplete [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
-              (completeMethod)="search($event)" placeholder="Enter Employee" field="name"></p-autoComplete>
+            <label class="mb-1" style='margin-right:15px;'>Employee :</label><br>
+            <p-autoComplete class="modalDropDown" [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
+              (completeMethod)="search($event)" placeholder="Enter Employee" field="name"
+              ></p-autoComplete>
           </div>
         </div>
       </div>
-      <div class="modal-footer justify-content-end p-1">
-        <div class="row col-md-4 justify-content-end  ">
-          <button type="button" class="btn btn-success" style="background-color: #18A3E4 !important;"
-            (click)="closeModal('mymodal');onSubmitSettingModal()"
-            [disabled]="!(LocationID&&ProcessID&&DepartmentID)">Submit</button>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" style="background-color: #18A3E4 !important;"
+          (click)="closeModal('mymodal');onSubmitSettingModal()" data-bs-dismiss="modal"
+          [disabled]="!(LocationID&&ProcessID&&DepartmentID)">Submit</button>
       </div>
     </div>
   </div>
 </div>
+
 
 <!-- Message Modal -->
 <div class="modal" aria-labelledby="exampleModalCenterTitle" id="messageModal" aria-hidden="true">
@@ -203,7 +195,7 @@
         <b>Do you wish to keep scanning?</b>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal'); this.isNextEnabled = false"
+        <button type="button" class="btn btn-success" (click)="closeModal('confirmModal'); this.isNextEnabled = false"
           data-dismiss="modal">Yes</button>
         <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal'); this.isNextEnabled = true"
           data-dismiss="modal">No</button>

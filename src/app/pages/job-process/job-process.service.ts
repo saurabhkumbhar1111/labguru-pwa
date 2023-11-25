@@ -46,7 +46,7 @@ export class JobProcessService {
   keyword: string;
   expiryCookiesDate: any;
   processing:string='';
-
+  impressionNoList :boolean = false;
   constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
     public serverVariableService: ServerVariableService,private messageService: MessageService) { 
     this.keyword = "name";
@@ -224,6 +224,7 @@ export class JobProcessService {
     this.paramarray=[];
     this.impressionNo='';
     this.reworkProcessColln =[];
+    this.impressionNoList =false;
   }
 
   deleteModal(){}
@@ -240,6 +241,7 @@ export class JobProcessService {
 
   validateProcess(){
     let ImpAdded = this.arrayOfImpNo.filter((item: string)=>item==this.impressionNo);
+    this.impressionNoList = true;
     if(ImpAdded.length>0){
       this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Impression already added' });
       return;
@@ -569,4 +571,9 @@ export class JobProcessService {
       this.stopScanner();
     }, 15000);
   }
+  removeItem(index: number): void {
+    this.arrayOfImpNo.splice(index, 1);
+  }
+
+
 }
