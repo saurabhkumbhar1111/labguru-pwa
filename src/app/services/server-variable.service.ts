@@ -13,8 +13,8 @@ export class ServerVariableService {
   
 
   //URL
-  // URL = 'https://uat.illusiondentallab.com/API_2020/';
-  URL = 'https://localhost:44354/';
+  URL = 'https://uat.illusiondentallab.com/API_2020/';
+  // URL = 'https://localhost:44354/';
   // PATH For API
 
   PATH_FOR_API = this.URL+'api/';

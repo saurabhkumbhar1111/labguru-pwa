@@ -134,3 +134,14 @@ zxing-scanner {
   :host ::ng-deep .p-modalDropDown {
     width: 300px; /* Replace '300px' with your desired width */
    }
+
+  @media only screen and (width<390px) {
+
+    .btnPrevious{
+      margin-right: 190px;
+     }
+    
+     :host ::ng-deep .myClass{ 
+      width: 230px;
+  }
+  }

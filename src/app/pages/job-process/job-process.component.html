@@ -50,7 +50,7 @@
         </div>
       </aw-wizard-step>
       <aw-wizard-step>
-        <div class="centered-content">
+        <div class="centered-content" [ngClass]="!isFooterEnabled ? 'pointernone' : 'pointerall'">
           <div class="card">
             <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan
               Impression
@@ -63,17 +63,24 @@
             <div class="input-group input-group-sm mb-3">
               <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
                 placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
-              <button type="button" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled"
+              <button type="button" [disabled]="this.impressionNo.length==0" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled"
                 (click)="validateProcess()">Add</button>
             </div>
-           <div *ngIf="impressionNoList">
+           <div *ngIf="this.newArrayOfImp.length>0">
             <div class="table-container" >
               <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
               <table class="table table-success table-striped">
                 <tbody>
-                  <tr *ngFor="let item of arrayOfImpNo; let i = index">
-                    <td><span (click)="removeItem(i)"><i class="fa fa-trash" style="color: red; margin-right: 20px;"
-                          aria-hidden="true"></i></span>{{item}}</td>
+                  <tr>
+                    <th></th>
+                    <th>Impression no</th>
+                    <th>Unit</th>
+                  </tr>
+                  <tr *ngFor="let item of newArrayOfImp; let i = index">
+                    <td><span (click)="removeItem(item.JobEntryNo)"><i class="fa fa-trash" style="color: red; margin-right: 20px;"
+                          aria-hidden="true"></i></span></td>
+                    <td>{{item.JobEntryNo}}</td>
+                    <td>{{item.Units}}</td>
                   </tr>
                 </tbody>
               </table>
@@ -138,7 +145,7 @@
           </div>
           <div class="d-flex">
             <label class="mb-1" style='margin-right:15px;'>Employee :</label><br>
-            <p-autoComplete class="modalDropDown" [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
+            <p-autoComplete class="modalDropDown myClass" [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
               (completeMethod)="search($event)" placeholder="Enter Employee" field="name"
               ></p-autoComplete>
           </div>
@@ -160,9 +167,9 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Skip Process List</h5>
-        <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('messageModal')"
+        <!-- <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('messageModal')"
           data-dismiss="modal" title="Close" style="background: none;color: black;"><i
-            class="fa-solid fa-xmark"></i></button>
+            class="fa-solid fa-xmark"></i></button> -->
       </div>
       <div class="modal-body overflow">
         <b>Below Are/Is Skip Process List:</b>
@@ -171,10 +178,10 @@
         </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="closeModal('messageModal');openModal('confirmModal')"
+        <button type="button" class="btn btn-success" (click)="closeModal('messageModal');"
           data-dismiss="modal">Submit</button>
         <button type="button" class="btn btn-danger"
-          (click)="closeModal('messageModal');openModal('confirmModal');cancelSkip();"
+          (click)="closeModal('messageModal');cancelSkip();"
           data-dismiss="modal">Cancel</button>
       </div>
     </div>

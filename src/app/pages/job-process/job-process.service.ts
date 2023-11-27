@@ -10,6 +10,7 @@ import { BarcodeFormat } from '@zxing/library';
 import { ZXingScannerComponent } from '@zxing/ngx-scanner';
 import { Result } from '@zxing/library';
 import { MessageService } from 'primeng/api';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -47,6 +48,7 @@ export class JobProcessService {
   expiryCookiesDate: any;
   processing:string='';
   impressionNoList :boolean = false;
+  newArrayOfImp:any=[];
   constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
     public serverVariableService: ServerVariableService,private messageService: MessageService) { 
     this.keyword = "name";
@@ -225,6 +227,7 @@ export class JobProcessService {
     this.impressionNo='';
     this.reworkProcessColln =[];
     this.impressionNoList =false;
+    this.newArrayOfImp = [];
   }
 
   deleteModal(){}
@@ -240,12 +243,14 @@ export class JobProcessService {
   }
 
   validateProcess(){
-    let ImpAdded = this.arrayOfImpNo.filter((item: string)=>item==this.impressionNo);
-    this.impressionNoList = true;
+    this.impressionNo = this.impressionNo.trim();
+    let ImpAdded = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.impressionNo);
+    // this.impressionNoList = true;
     if(ImpAdded.length>0){
       this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Impression already added' });
       return;
     }
+    this.oldImpNo=this.impressionNo;
     const param = {
       'SituationID': 0,
       'TransactionNumber': this.impressionNo,
@@ -295,19 +300,12 @@ export class JobProcessService {
           var AlertMsg = response.data.AutoProcess[0].AlertMsg;
           this.ProductID = response.data.AutoProcess[0].ProductID;
           if(AlertMsg.length<1){
-            if(this.arrayOfImpNo.length>0){
-              let ImpAdded = this.arrayOfImpNo.filter((item: string)=>item==this.impressionNo);
-              if(ImpAdded.length>0){
-                this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Impression already added' })
-              }
-              else{
+            this.restrictedSkipProcess().subscribe((isValid: boolean) => {
+              if (isValid) {
                 this.arrayOfImpNo.push(this.impressionNo);
                 this.GetSkipProcess(); //next api call made
               }
-            }else{
-              this.arrayOfImpNo.push(this.impressionNo);
-              this.GetSkipProcess(); //next api call made
-            }
+            });
           }else{
             this.messageService.add({ severity: 'warn', summary: 'Warn', detail: AlertMsg });
             this.impressionNo = '';
@@ -320,6 +318,30 @@ export class JobProcessService {
       );
   }
 
+  restrictedSkipProcess(): Observable<boolean> {
+    const param = {
+      'SituationID': 6,
+      'TransactionNumber': this.impressionNo,
+      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0
+    };
+  
+    const formData = new FormData();
+    formData.set('AutoProcess', JSON.stringify(param));
+  
+    return this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).pipe(
+      map((response: any) => {
+        if (!this.utilsService.isNullUndefinedOrBlank(response.data.ResultSets[0]?.Result1[0][""])) {
+          this.messageService.add({ severity: 'warn', summary: 'Warn', detail: response.data.ResultSets[0].Result1[0][""] });
+          this.impressionNo='';
+          return false;
+        } else {
+          return true;
+        }
+      })
+    );
+  }
+
   ListOfSkipProcess:any=[];
   SkipProcessListColln:any=[];
   oldImpNo:string='';
@@ -328,7 +350,7 @@ export class JobProcessService {
     for(let item of this.AllValidationArray){
       const param = {
         'SituationID': 2,
-        'TransactionNumber': this.impressionNo,
+        'TransactionNumber': this.oldImpNo,
         'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
         'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
         'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
@@ -336,7 +358,7 @@ export class JobProcessService {
       const formData = new FormData();
       formData.set('AutoProcess', JSON.stringify(param));
       this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
-        (response: any) => {
+        async (response: any) => {
           //console.log(response.data);
           var SkipList = [];
           SkipList = response.data.AutoProcess;
@@ -347,41 +369,23 @@ export class JobProcessService {
             console.log('skipcolln: ',this.SkipProcessListColln);
             SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
             this.ListOfSkipProcess.pop();
-            if(SkipList.length>1){
-              this.openModal('messageModal');
-            }else{
-              // this.openModal('confirmModal');
-            }
-            this.oldImpNo=this.impressionNo;
-            this.impressionNo = '';
-          }else{
-            const param = {
-              'SituationID': 5,
-              'TransactionNumber': this.impressionNo,
-              'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
-              'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
-              'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
-            };
-            const formData = new FormData();
-            formData.set('AutoProcess', JSON.stringify(param));
-              this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
-                (response: any) => {
-                  if(response.data.AutoProcess.ErrorMsg){
-                    this.arrayOfImpNo.pop(this.impressionNo);
-                    this.messageService.add({ severity: 'warn', summary: 'Warn', detail: response.data.AutoProcess.ErrorMsg });
-                  }
-                  else{
-                    this.reworkProcessColln.length>0 ? this.reworkProcessColln.push(...item) : this.reworkProcessColln.push(item);
-                    //console.log('reworkProcessColln:',this.reworkProcessColln);
-                    // this.openModal('confirmModal');
-                    this.impressionNo = '';
-                  }
-                },
-                (error) => {
-                  //console.error('Error:', error);
-                  this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
-                }
-              );
+            const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
+            let ImpArray=[
+              {
+                "JobEntryNo": this.oldImpNo,
+                "Units": 0,
+                "Rework1GivenTime": null,
+                "Rework2GivenTime": null,
+                "Rework3GivenTime": null,
+                "Rework4GivenTime": null
+              }
+            ];
+            dublicateData.length>0 ? '' : this.newArrayOfImp.push(...ImpArray);
+            this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
+          }
+          else{
+            this.reworkProcessColln.push(item);
+            await this.getMainGridData(item);
           }
         },
         (error) => {
@@ -390,8 +394,53 @@ export class JobProcessService {
         }
       );
     }
+    this.impressionNo='';
     // this.openModal('confirmModal');
     // return;
+  }
+
+  async getMainGridData(item:any){
+    const param = {
+      'SituationID': 5,
+      'TransactionNumber': item.Transactionnumber,
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
+      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
+      'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
+    };
+    const formData = new FormData();
+    formData.set('AutoProcess', JSON.stringify(param));
+    await new Promise((resolve)=>{
+      this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+        (response: any) => {
+          if(response.data.AutoProcess.length==0){
+            this.impressionNo = '';
+            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Previous process is not Complete or it require doctor confirmation or case is discarded or case is delivered.' });
+          }
+          else{
+            if(response.data.AutoProcess[0].Rework4GivenTime==null){
+              let JobEntryNo = response.data.AutoProcess[0].JobEntryNo;
+              let Units = response.data.AutoProcess[0].Units;
+              const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == JobEntryNo);
+              if(dublicateData.length>0){
+                this.newArrayOfImp.filter((item: { JobEntryNo: any,Units:any; })=>{if(item.JobEntryNo == JobEntryNo){item.Units+=Units}});
+              }else{
+                this.newArrayOfImp.length>0 ? this.newArrayOfImp.push(...response.data.AutoProcess) : this.newArrayOfImp.push(response.data.AutoProcess[0]);
+              }
+              console.log(this.newArrayOfImp);
+              this.impressionNo = '';
+            }
+            else{
+              this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Job Process Redo Limit Exceeds of '+this.oldImpNo+ '!'});
+            }
+          }
+          resolve('');
+        },
+        (error) => {
+          //console.error('Error:', error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
+        }
+      );
+    })
   }
 
   paramarray:any=[];
@@ -483,50 +532,13 @@ export class JobProcessService {
     }
     //console.log('rework:',this.paramarray);
   }
-  // submit1(){
-  //   for(let item of this.AllValidationArrayColln){
-  //     let temploop = this.SkipProcessListColln.filter((a: { Transactionnumber: any; })=>a.Transactionnumber==item.Transactionnumber);
-  //     for(let item1 of temploop){
-  //       const param = {
-  //         'SituationID': 3,
-  //         'TransactionNumber': item.Transactionnumber,
-  //         'DepartmentID': item1.DepartmentID,
-  //         'ProcessID': item1.ProcessID,
-  //         'ProductID': item.ProductID,
-  //         'JobDesignID': item.JobDesignID,
-  //         'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
-  //         'EmployeeCode': this.employee.name.toString().split(' - ')[0],
-  //         'LocationID': this.LocationID.id ? this.LocationID.id : 0
-  //       };
-  //       this.paramarray.push(param);
-  //       const formData = new FormData();
-  //       formData.set('AutoProcess', JSON.stringify(param));
-  //         this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
-  //           (response: any) => {
-  //             if(response.data.AutoProcess[0].Result=='Job Process Successfull'){
-  //               this.processing = 'Process Subbmitting...';
-  //               // alert(response.data.AutoProcess[0].Result);
-  //             }else{
-  //               alert('Something wrong.');
-  //               this.impressionNo = '';
-  //             }
-  //           },
-  //           (error) => {
-  //             //console.error('Error:', error);
-  //           }
-  //         );
-  //     }
-  //     // let processid,departmentid;
-  //     // this.SkipProcessListColln.filter((data: { Transactionnumber: any; ProcessID: any; DepartmentID: any; })=>{if(data.Transactionnumber==item.TransactionNumber){processid=data.ProcessID; departmentid = data.DepartmentID;}});
-  //   }
-  //   //console.log('paramarray:',this.paramarray);
-  //   this.processing ='';
-  // }
 
   cancelSkip(){
     this.SkipProcessListColln = this.SkipProcessListColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=this.oldImpNo);
     this.AllValidationArrayColln = this.AllValidationArrayColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=this.oldImpNo);
     this.arrayOfImpNo = this.arrayOfImpNo.filter((item: string)=> item != this.oldImpNo);
+    this.newArrayOfImp = this.newArrayOfImp.filter((item: {JobEntryNo : any})=> item.JobEntryNo != this.oldImpNo);
+    this.impressionNo='';
     // //console.log('cancel:',this.SkipProcessListColln);
   }
 
@@ -571,9 +583,11 @@ export class JobProcessService {
       this.stopScanner();
     }, 15000);
   }
-  removeItem(index: number): void {
-    this.arrayOfImpNo.splice(index, 1);
+  removeItem(impNo: any): void {
+    this.SkipProcessListColln = this.SkipProcessListColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=impNo);
+    this.AllValidationArrayColln = this.AllValidationArrayColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=impNo);
+    this.arrayOfImpNo = this.arrayOfImpNo.filter((item: string)=> item != impNo);
+    this.newArrayOfImp = this.newArrayOfImp.filter((item: {JobEntryNo : any})=> item.JobEntryNo != impNo);
   }
-
 
 }
