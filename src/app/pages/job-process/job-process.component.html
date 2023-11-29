@@ -26,7 +26,7 @@
       <!-- <footer style="text-align: right;"><button type="button" class="btn btn-success " (click)="this.isSettingEnabled =false" [awGoToStep]="{stepIndex:1}">Next</button></footer> -->
 
       <!-- </aw-wizard-step> -->
-      <aw-wizard-step >
+      <aw-wizard-step>
         <div class="centered-content">
           <div class="card">
             <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Employee
@@ -36,17 +36,31 @@
                 (scanSuccess)="handleScanEmployee($event)" [formats]="allowedFormats">
               </zxing-scanner></div>
             <div class="input-group input-group-sm mb-3">
-              <p-autoComplete [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
-                (completeMethod)="search($event)" placeholder="Enter Employee" field="name"  styleClass="myclass"></p-autoComplete>
+              <ng-autocomplete style="width:200px;" [data]="arryforEmployee" [searchKeyword]="keyword"
+                placeholder="Enter Employee " (selected)='onSelectEmployee($event)' (inputChanged)='search($event)'
+                (inputFocused)='onFocused($event)' [itemTemplate]="itemTemplate" [notFoundTemplate]="notFoundTemplate"
+                (inputCleared)="searchClearedEmployee()" (keydown.tab)="clear($event)" (keydown.enter)="clear($event)" [(ngModel)]="employee">
+              </ng-autocomplete>
+
+              <ng-template #itemTemplate let-item>
+                <a [innerHTML]="item.name"></a>
+              </ng-template>
+
+              <ng-template #notFoundTemplate let-notFound>
+                <div [innerHTML]="notFound"></div>
+              </ng-template>
+              <button type="button" class="btn btn-success step1footer" style="margin-left: 20px;"
+                [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID"
+                (click)="this.isSettingEnabled = false" awNextStep>Next</button>
             </div>
           </div>
         </div>
         <div>
-          <footer>
-            <!-- <button type="button" class="btn btn-danger" (click)="this.isSettingEnabled = true" [disabled]="isScannerEnabled" awPreviousStep>Previous</button> -->
-            <button type="button" class="btn btn-success step1footer" [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID" (click)="this.isSettingEnabled = false"
-              awNextStep>Next</button>
-          </footer>
+          <!-- <footer>
+            <button type="button" class="btn btn-success step1footer"
+              [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID"
+              (click)="this.isSettingEnabled = false" awNextStep>Next</button>
+          </footer> -->
         </div>
       </aw-wizard-step>
       <aw-wizard-step>
@@ -63,38 +77,32 @@
             <div class="input-group input-group-sm mb-3">
               <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
                 placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
-              <button type="button" [disabled]="this.impressionNo.length==0" class="btn btn-success" style="margin-left: 20px;" *ngIf="!isNextEnabled"
-                (click)="validateProcess()">Add</button>
+              <button type="button" [disabled]="this.impressionNo.length==0" class="btn btn-success"
+                style="margin-left: 20px;" *ngIf="!isNextEnabled" (click)="validateProcess()">Add</button>
             </div>
-           <div *ngIf="this.newArrayOfImp.length>0">
-            <div class="table-container" >
-              <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
-              <table class="table table-success table-striped">
-                <tbody>
-                  <tr>
-                    <th></th>
-                    <th>Impression no</th>
-                    <th>Unit</th>
-                  </tr>
-                  <tr *ngFor="let item of newArrayOfImp; let i = index">
-                    <td><span (click)="removeItem(item.JobEntryNo)"><i class="fa fa-trash" style="color: red; margin-right: 20px;"
-                          aria-hidden="true"></i></span></td>
-                    <td>{{item.JobEntryNo}}</td>
-                    <td>{{item.Units}}</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div *ngIf="this.newArrayOfImp.length>0">
+              <div class="table-container">
+                <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
+                <table class="table table-success table-striped">
+                  <tbody>
+                    <tr>
+                      <th></th>
+                      <th>Impression no</th>
+                      <th>Unit</th>
+                    </tr>
+                    <tr *ngFor="let item of newArrayOfImp; let i = index">
+                      <td><span (click)="removeItem(item.JobEntryNo)"><i class="fa fa-trash"
+                            style="color: red; margin-right: 20px;" aria-hidden="true"></i></span></td>
+                      <td>{{item.JobEntryNo}}</td>
+                      <td>{{item.Units}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-           </div>
           </div>
         </div>
         <div>
-          <!-- <footer style="text-align: right;">
-            <button type="button" class="btn btn-danger " (click)="this.clearArray();this.isSettingEnabled = false"
-              [disabled]="isScannerEnabled" awPreviousStep>Previous</button>
-             <button type="button" class="btn btn-success" style="margin-left: 20px;"
-              [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled" awNextStep>Next</button>
-          </footer> -->
           <footer style="text-align: right;" *ngIf="isFooterEnabled">
             <button type="button" class="btn btn-danger btnPrevious"
               (click)="this.clearArray();this.isSettingEnabled = true" [disabled]="isScannerEnabled"
@@ -125,30 +133,63 @@
           (click)="closeModal('mymodal')"></button>
       </div>
       <div class="modal-body">
-        <div class="justify-content-center">
-          <div class="d-flex">
-            <label class="mb-1 " style='margin-right:20px'>Location :</label>
-            <br>
-            <p-dropdown class="d-block mb-1 ml-2" [options]="arrayForLocationList" [(ngModel)]="LocationID"
-              placeholder="Select a Location" [filter]="true" optionLabel="name"></p-dropdown>
-          </div>
-          <div class="d-flex">
-            <label class="mb-1" style="margin-right:5px">Department:</label>
-            <p-dropdown class="d-block mb-1" [options]="arrayForDepartmentList" [(ngModel)]="DepartmentID"
-              placeholder="Select a Department" (onChange)="onSelectDepartment()" [filter]="true"
-              optionLabel="name"></p-dropdown>
-          </div>
-          <div class="d-flex">
-            <label class="mb-1" style='margin-right:29.5px'>Process :</label><br>
-            <p-dropdown class="d-block mb-1" [options]="arrayForProcessList" [(ngModel)]="ProcessID"
-              placeholder="Select a Process" [filter]="true" optionLabel="name" [disabled]="!processJob"></p-dropdown>
-          </div>
-          <div class="d-flex">
-            <label class="mb-1" style='margin-right:15px;'>Employee :</label><br>
-            <p-autoComplete class="modalDropDown myClass" [(ngModel)]="employee" [suggestions]="arryforEmployee" (onSelect)="onSelectEmployee()"
-              (completeMethod)="search($event)" placeholder="Enter Employee" field="name"
-              ></p-autoComplete>
-          </div>
+        <div>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="" class="mb-2">Location</label>
+                </td>
+                <td>
+                  <ng-select class="mb-2" [items]="arrayForLocationList" dropdownPosition="bottom"
+                    notFoundText="Location not found" [clearable]="true" [(ngModel)]="LocationID" bindLabel="name"
+                    bindValue="id" placeholder="Location">
+                  </ng-select>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="" class="mb-2">Department</label>
+                </td>
+                <td>
+                  <ng-select class="mb-2" [items]="arrayForDepartmentList" [dropdownPosition]="'bottom'"
+                    notFoundText="Department not found" [clearable]="true" [(ngModel)]="DepartmentID" bindLabel="name"
+                    bindValue="id" (change)="onSelectDepartment()" placeholder="Department">
+                  </ng-select>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label for="" class="mb-2">Process</label>
+                </td>
+                <td>
+                  <ng-select class="mb-2" [items]="arrayForProcessList" [dropdownPosition]="'bottom'"
+                    notFoundText="Process not found" [clearable]="true" [(ngModel)]="ProcessID" bindLabel="name"
+                    bindValue="id" placeholder="select a Process" [disabled]="!processJob">
+                  </ng-select>
+                </td>
+              </tr>
+              <tr>
+                <td><label class="mb-2">Employee</label></td>
+                <td>
+                  <ng-autocomplete [data]="arryforEmployee" [searchKeyword]="keyword" placeholder="Enter Employee "
+                    (selected)='onSelectEmployee($event)' (inputChanged)='search($event)'
+                    (inputFocused)='onFocused($event)' [itemTemplate]="itemTemplate"
+                    [notFoundTemplate]="notFoundTemplate" (inputCleared)="searchClearedEmployee()"
+                    (keydown.tab)="clear($event)" (keydown.enter)="clear($event)" [(ngModel)]="employee">
+                  </ng-autocomplete>
+
+                  <ng-template #itemTemplate let-item>
+                    <a [innerHTML]="item.name"></a>
+                  </ng-template>
+
+                  <ng-template #notFoundTemplate let-notFound>
+                    <div [innerHTML]="notFound"></div>
+                  </ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
       <div class="modal-footer">
@@ -158,73 +199,70 @@
       </div>
     </div>
   </div>
-</div>
 
-
-<!-- Message Modal -->
-<div class="modal" aria-labelledby="exampleModalCenterTitle" id="messageModal" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Skip Process List</h5>
-        <!-- <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('messageModal')"
-          data-dismiss="modal" title="Close" style="background: none;color: black;"><i
-            class="fa-solid fa-xmark"></i></button> -->
-      </div>
-      <div class="modal-body overflow">
-        <b>Below Are/Is Skip Process List:</b>
-        <p *ngFor="let item of ListOfSkipProcess">
-          {{item}}
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="closeModal('messageModal');"
-          data-dismiss="modal">Submit</button>
-        <button type="button" class="btn btn-danger"
-          (click)="closeModal('messageModal');cancelSkip();"
-          data-dismiss="modal">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Message Modal -->
-<div class="modal" aria-labelledby="exampleModalCenterTitle" id="confirmModal" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Message</h5>
-        <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('confirmModal')"
-          data-dismiss="modal" title="Close" style="background: none; color: black;"><i
-            class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="modal-body">
-        <b>Do you wish to keep scanning?</b>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" (click)="closeModal('confirmModal'); this.isNextEnabled = false"
-          data-dismiss="modal">Yes</button>
-        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal'); this.isNextEnabled = true"
-          data-dismiss="modal">No</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- delete Modal -->
-<div class="modal" aria-labelledby="exampleModalCenterTitle" id="deleteConfirmationModal" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <!-- Message Modal -->
+  <div class="modal" aria-labelledby="exampleModalCenterTitle" id="messageModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
-        <div class="modal-body text-center">
-          <h3 class="mb-3">Are you sure ? <br /> You want to Continue ..</h3>
-          <button type="button" class="btn btn-danger mr-5" data-dismiss="modal"
-            (click)="closeModal('deleteConfirmationModal')">No</button>
-          <button type="button" class="btn btn-success" style="margin-left:20px ;"
-            (click)="closeModal('deleteConfirmationModal');this.isFooterEnabled=false;this.syncSubmit();">Yes</button>
+        <div class="modal-header">
+          <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Skip Process List</h5>
+          <!-- <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('messageModal')"
+          data-dismiss="modal" title="Close" style="background: none;color: black;"><i
+            class="fa-solid fa-xmark"></i></button> -->
+        </div>
+        <div class="modal-body overflow">
+          <b>Below Are/Is Skip Process List:</b>
+          <p *ngFor="let item of ListOfSkipProcess">
+            {{item}}
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" (click)="closeModal('messageModal');"
+            data-dismiss="modal">Submit</button>
+          <button type="button" class="btn btn-danger" (click)="closeModal('messageModal');cancelSkip();"
+            data-dismiss="modal">Cancel</button>
         </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- Message Modal -->
+  <div class="modal" aria-labelledby="exampleModalCenterTitle" id="confirmModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Message</h5>
+          <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('confirmModal')"
+            data-dismiss="modal" title="Close" style="background: none; color: black;"><i
+              class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+          <b>Do you wish to keep scanning?</b>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" (click)="closeModal('confirmModal'); this.isNextEnabled = false"
+            data-dismiss="modal">Yes</button>
+          <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal'); this.isNextEnabled = true"
+            data-dismiss="modal">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- delete Modal -->
+  <div class="modal" aria-labelledby="exampleModalCenterTitle" id="deleteConfirmationModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+            <h3 class="mb-3">Are you sure ? <br /> You want to Continue ..</h3>
+            <button type="button" class="btn btn-danger mr-5" data-dismiss="modal"
+              (click)="closeModal('deleteConfirmationModal')">No</button>
+            <button type="button" class="btn btn-success" style="margin-left:20px ;"
+              (click)="closeModal('deleteConfirmationModal');this.isFooterEnabled=false;this.syncSubmit();">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

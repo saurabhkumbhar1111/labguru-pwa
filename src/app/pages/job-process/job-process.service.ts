@@ -29,9 +29,9 @@ export class JobProcessService {
    Donemessage : string = "Process Success";
   OrganizationUnitID: any;
   EmployeeID : any ; 
-  DepartmentID: any;
-  ProcessID: any;
-  LocationID: any;
+  DepartmentID: number =0;
+  ProcessID: number = 0;
+  LocationID: number =0;
   arrayForDepartmentList: any[] = [];
   arrayForProcessList: any[] = [];
   arrayForLocationList: any[] = [];
@@ -49,6 +49,7 @@ export class JobProcessService {
   processing:string='';
   impressionNoList :boolean = false;
   newArrayOfImp:any=[];
+  autoComplete: any;
   constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
     public serverVariableService: ServerVariableService,private messageService: MessageService) { 
     this.keyword = "name";
@@ -80,19 +81,18 @@ export class JobProcessService {
       (response: any) => {
         this.arrayForDepartmentList = response.data.Department_DDL;
         this.arrayForLocationList =response.data.LineLocation;
-        if(this.cookieService.get('LocationID')!=="undefined" && this.cookieService.get('LocationID')!==""){
-            this.arrayForLocationList.filter((item)=>{if(item.id ==this.cookieService.get("LocationID")){
-              this.LocationID = item;
-              this.Location=JSON.stringify(this.LocationID.name).replace(/"/g, '');
-            }});
+        if(this.cookieService.get('LocationID')!=="undefined" && this.cookieService.get('LocationID')!==null){
+            // this.arrayForLocationList.filter((item)=>{if(item.id ==this.cookieService.get("LocationID")){
+            //   this.LocationID = item;
+            //   this.Location=JSON.stringify(this.LocationID.name).replace(/"/g, '');
+            // }});
+            this.LocationID = parseInt(this.cookieService.get('LocationID'));
+
         }
         if(this.cookieService.get('DepartmentID')!=="undefined" && this.cookieService.get('DepartmentID')!==""){
-          this.arrayForDepartmentList.filter((item)=>{if(item.id ==this.cookieService.get("DepartmentID")){
-            this.DepartmentID = item;
-            this.Department=JSON.stringify(this.DepartmentID.name).replace(/"/g, '');
-            this.onSelectDepartment();
+          this.DepartmentID =parseInt(this.cookieService.get("DepartmentID"))
+          this.onSelectDepartment();
 
-          }});
       }
       },
       (error) => {
@@ -101,7 +101,7 @@ export class JobProcessService {
     );
   }
   onSelectDepartment() {
-    this.ProcessID = null;
+    this.ProcessID = 0;
     this.processJob =true;
     // if(this.DepartmentID){
       const param = {
@@ -112,7 +112,7 @@ export class JobProcessService {
         'LoginRoleID': 1,
         'LoginCompanyID': 1,
         'innerSituationID': 40,
-        'ModuleID' :!this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id)?parseInt(this.DepartmentID.id):0
+        'ModuleID' :!this.utilsService.isNullUndefinedOrBlank(this.DepartmentID)?(this.DepartmentID):0
       };
      this.postProcess(param);
     }
@@ -122,11 +122,11 @@ export class JobProcessService {
         (response: any) => {
          this.arrayForProcessList =response.data.Data;
          if(this.cookieService.get('ProcessID')!=="undefined" && this.cookieService.get('ProcessID')!==""){
-          this.arrayForProcessList.filter((item)=>{if(item.id ==this.cookieService.get("ProcessID")){
-            this.ProcessID = item;
-            this.Process=JSON.stringify(this.ProcessID.name).replace(/"/g, '');
-  
-          }});
+          // this.arrayForProcessList.filter((item)=>{if(item.id ==this.cookieService.get("ProcessID")){
+          //   this.ProcessID = item;
+          //   this.Process=JSON.stringify(this.ProcessID.name).replace(/"/g, '');
+          // }});
+          this.ProcessID =parseInt(this.cookieService.get('ProcessID'))
       }
       },
         (error) => {
@@ -182,17 +182,19 @@ export class JobProcessService {
       
     }
   selectedEmployee :any;
-  onSelectEmployee(){
-    this.selectedEmployee = this.arryforEmployee.find((item: { id: number; }) =>item.id ==this.employee.id)
-    //console.log(this.selectedEmployee);
+  onSelectEmployee(data:any){
+    // this.selectedEmployee = data.name.split(' - ')[0]
+
     this.validateEmployee();
+    
   }
+
 
   validateEmployee(){
     const param = {
       'SituationID': 4,
       'EmployeeCode': this.employee.name.toString().split(' - ')[0],
-      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID: 0
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
@@ -232,14 +234,12 @@ export class JobProcessService {
 
   deleteModal(){}
   onSubmitSettingModal(){
-    this.cookieService.set("LocationID",this.LocationID.id.toString(),this.expiryCookiesDate);
-    this.cookieService.set("DepartmentID",this.DepartmentID.id.toString(),this.expiryCookiesDate);
-    this.cookieService.set("ProcessID",this.ProcessID.id.toString(),this.expiryCookiesDate);
+    this.cookieService.set("LocationID",this.LocationID.toString(),this.expiryCookiesDate);
+    this.cookieService.set("DepartmentID",this.DepartmentID.toString(),this.expiryCookiesDate);
+    this.cookieService.set("ProcessID",this.ProcessID.toString(),this.expiryCookiesDate);
     !this.utilsService.isNullUndefinedOrBlank(this.employee) ? this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate):'';
     !this.utilsService.isNullUndefinedOrBlank(this.employee) ?this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate):'';
-    this.Location=JSON.stringify(this.LocationID.name);
-    this.Department=JSON.stringify(this.DepartmentID.name);
-    this.Process=JSON.stringify(this.ProcessID.name);
+
   }
 
   validateProcess(){
@@ -254,7 +254,7 @@ export class JobProcessService {
     const param = {
       'SituationID': 0,
       'TransactionNumber': this.impressionNo,
-      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0
+      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
@@ -283,7 +283,7 @@ export class JobProcessService {
     const param = {
       'SituationID': 1,
       'TransactionNumber': this.impressionNo,
-      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
@@ -322,8 +322,8 @@ export class JobProcessService {
     const param = {
       'SituationID': 6,
       'TransactionNumber': this.impressionNo,
-      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
-      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0
+      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0
     };
   
     const formData = new FormData();
@@ -351,8 +351,8 @@ export class JobProcessService {
       const param = {
         'SituationID': 2,
         'TransactionNumber': this.oldImpNo,
-        'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
-        'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
+        'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0,
+        'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
         'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
       };
       const formData = new FormData();
@@ -408,8 +408,8 @@ export class JobProcessService {
     const param = {
       'SituationID': 5,
       'TransactionNumber': item.Transactionnumber,
-      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID.id) ? this.DepartmentID.id : 0,
-      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID.id) ? this.ProcessID.id : 0,
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0,
+      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
       'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
     };
     const formData = new FormData();
@@ -477,7 +477,7 @@ export class JobProcessService {
       'JobDesignID': item.JobDesignID,
       'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
       'EmployeeCode': this.employee.name.toString().split(' - ')[0],
-      'LocationID': this.LocationID.id ? this.LocationID.id : 0
+      'LocationID': this.LocationID ? this.LocationID : 0
     };
     this.paramarray.push(param);
     const formData = new FormData();
@@ -507,13 +507,13 @@ export class JobProcessService {
       const param = {
         'SituationID': 3,
         'TransactionNumber': item.Transactionnumber,
-        'DepartmentID': this.DepartmentID.id,
-        'ProcessID': this.ProcessID.id,
+        'DepartmentID': this.DepartmentID,
+        'ProcessID': this.ProcessID,
         'ProductID': item.ProductID,
         'JobDesignID': item.JobDesignID,
         'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
         'EmployeeCode': this.employee.name.toString().split(' - ')[0],
-        'LocationID': this.LocationID.id ? this.LocationID.id : 0
+        'LocationID': this.LocationID ? this.LocationID : 0
       };
       this.paramarray.push(param);
       const formData = new FormData();
@@ -594,5 +594,21 @@ export class JobProcessService {
     this.arrayOfImpNo = this.arrayOfImpNo.filter((item: string)=> item != impNo);
     this.newArrayOfImp = this.newArrayOfImp.filter((item: {JobEntryNo : any})=> item.JobEntryNo != impNo);
   }
-
+  onFocused(event:any){}
+  searchClearedEmployee(){
+    this.arryforEmployee =[];
+    this.EmployeeID =null;
+    this.autoComplete.notFound = false;
+    this.autoComplete.query = '';
+  }
+  clear(event:any){
+    if (event.key === "Enter" || event.key === "Tab" ) {
+    if(this.arryforEmployee.length==0)
+    {
+        this.employee =null;
+        // this.autoComplete.notFound = false;
+        // this.autoComplete.query = '';
+    }
+ }
+}
 }

@@ -24,33 +24,6 @@
     font-size: 24px;
     margin-bottom: 10px;
   }
-  
-  /* Style the buttons */
-  /* button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-  } */
-  
-  /* Apply specific styles to different buttons */
-  /* .next-step {
-    background-color: #007bff;
-  } */
-  
-  /* .previous-step {
-    background-color: #ccc;
-  } */
-  
-  /* Style the finish button */
-  /* button[onclick="finishFunction"] {
-    background-color: #4CAF50;
-  } */
-/*   
-  button:hover {
-    background-color: #0056b3;
-  } */
 
   .modal-header{
     background-color: #18A3E4 !important;
@@ -131,17 +104,6 @@ zxing-scanner {
     max-height: 200px;
     overflow-y: auto;
   }
-  :host ::ng-deep .p-modalDropDown {
-    width: 300px; /* Replace '300px' with your desired width */
-   }
 
-  @media only screen and (width<390px) {
 
-    .btnPrevious{
-      margin-right: 190px;
-     }
-    
-     :host ::ng-deep .myClass{ 
-      width: 230px;
-  }
-  }
+  

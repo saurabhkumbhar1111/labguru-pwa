@@ -9,6 +9,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import { NgSelectModule } from '@ng-select/ng-select';
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
+
 const routes: Routes = [
   {
     path: '',
@@ -29,7 +32,9 @@ const routes: Routes = [
     ConfirmDialogModule,
     ToastModule,
     AutoCompleteModule,
-    ZXingScannerModule
+    ZXingScannerModule,
+    NgSelectModule,
+    AutocompleteLibModule
   ]
 })
 export class JobProcessModule { }
