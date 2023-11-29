@@ -44,7 +44,7 @@
         <div>
           <footer>
             <!-- <button type="button" class="btn btn-danger" (click)="this.isSettingEnabled = true" [disabled]="isScannerEnabled" awPreviousStep>Previous</button> -->
-            <button type="button" class="btn btn-success step1footer" [disabled]="isScannerEnabled || !employee" (click)="this.isSettingEnabled = false"
+            <button type="button" class="btn btn-success step1footer" [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID" (click)="this.isSettingEnabled = false"
               awNextStep>Next</button>
           </footer>
         </div>

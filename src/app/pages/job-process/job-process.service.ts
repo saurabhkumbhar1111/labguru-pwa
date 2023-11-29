@@ -19,7 +19,7 @@ export class JobProcessService {
   scanImp: boolean= true;
   @ViewChild('scanner') scanner: ZXingScannerComponent = new ZXingScannerComponent;
   isScannerEnabled = false;
-  allowedFormats = [ BarcodeFormat.QR_CODE, BarcodeFormat.CODE_128, BarcodeFormat.DATA_MATRIX ];
+  allowedFormats = [ BarcodeFormat.CODE_128,BarcodeFormat.CODABAR,BarcodeFormat.CODE_39,BarcodeFormat.CODE_93, BarcodeFormat.DATA_MATRIX ];
   Location:string='';
   Department:string='';
   Process:string='';
@@ -369,19 +369,24 @@ export class JobProcessService {
             console.log('skipcolln: ',this.SkipProcessListColln);
             SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
             this.ListOfSkipProcess.pop();
-            const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
-            let ImpArray=[
-              {
-                "JobEntryNo": this.oldImpNo,
-                "Units": 0,
-                "Rework1GivenTime": null,
-                "Rework2GivenTime": null,
-                "Rework3GivenTime": null,
-                "Rework4GivenTime": null
-              }
-            ];
-            dublicateData.length>0 ? '' : this.newArrayOfImp.push(...ImpArray);
-            this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
+            if(this.ListOfSkipProcess.length>0){
+              const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
+              let ImpArray=[
+                {
+                  "JobEntryNo": this.oldImpNo,
+                  "Units": 0,
+                  "Rework1GivenTime": null,
+                  "Rework2GivenTime": null,
+                  "Rework3GivenTime": null,
+                  "Rework4GivenTime": null
+                }
+              ];
+              dublicateData.length>0 ? '' : this.newArrayOfImp.push(...ImpArray);
+              this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
+            }
+            else{
+              await this.getMainGridData(item);
+            }
           }
           else{
             this.reworkProcessColln.push(item);
