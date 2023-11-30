@@ -1,3 +1,4 @@
+@import "~@ng-select/ng-select/themes/default.theme.css";
 aw-wizard-navigation-bar >ul {
     list-style-type: none;
   }
@@ -9,7 +10,4 @@ aw-wizard-navigation-bar >ul {
   }
   .step1footer{
     margin-left: 120px;
-  }
-  .p-autoComplete{
-    width: 100px !important;
   }
