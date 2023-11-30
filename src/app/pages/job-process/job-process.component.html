@@ -108,7 +108,7 @@
               (click)="this.clearArray();this.isSettingEnabled = true" [disabled]="isScannerEnabled"
               awPreviousStep>Previous</button>
             <button type="button" class="btn btn-success" (click)="openModal('deleteConfirmationModal')"
-              [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled">Submit</button>
+              [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal">Submit</button>
           </footer>
           <footer *ngIf="!isFooterEnabled" style="display: flex; justify-content: center; align-items: center;">
             <div>
@@ -199,6 +199,7 @@
       </div>
     </div>
   </div>
+  </div>
 
   <!-- Message Modal -->
   <div class="modal" aria-labelledby="exampleModalCenterTitle" id="messageModal" aria-hidden="true">
@@ -251,18 +252,20 @@
 
 
   <!-- delete Modal -->
-  <div class="modal" aria-labelledby="exampleModalCenterTitle" id="deleteConfirmationModal" aria-hidden="true">
+  <div class="modal fade" aria-labelledby="exampleModalCenterTitle" id="deleteConfirmationModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-body text-center">
             <h3 class="mb-3">Are you sure ? <br /> You want to Continue ..</h3>
-            <button type="button" class="btn btn-danger mr-5" data-dismiss="modal"
+            <button type="button" class="btn btn-danger mr-5" data-bs-dismiss="modal"
               (click)="closeModal('deleteConfirmationModal')">No</button>
-            <button type="button" class="btn btn-success" style="margin-left:20px ;"
+            <button type="button" class="btn btn-success" style="margin-left:20px ;" data-bs-dismiss="modal"
               (click)="closeModal('deleteConfirmationModal');this.isFooterEnabled=false;this.syncSubmit();">Yes</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+
