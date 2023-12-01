@@ -105,5 +105,14 @@ zxing-scanner {
     overflow-y: auto;
   }
 
+  .redbg{
+    background-color: red;
+  }
+  .bluebg{
+    background-color: #39c0ff;
+  }
+  .greenbg{
+    background-color: rgb(0, 238, 0);
+  }
 
   

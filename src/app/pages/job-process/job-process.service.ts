@@ -1,4 +1,4 @@
-import { Injectable, ViewChild } from '@angular/core';
+import { ElementRef, EventEmitter, Injectable, Output, ViewChild } from '@angular/core';
 import {UtilsService} from '../../services/utils.service'
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,12 +11,14 @@ import { ZXingScannerComponent } from '@zxing/ngx-scanner';
 import { Result } from '@zxing/library';
 import { MessageService } from 'primeng/api';
 import { map, Observable } from 'rxjs';
+import { WizardComponent } from 'angular-archwizard';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JobProcessService {
   scanImp: boolean= true;
+  @ViewChild('wizard') wizard!: WizardComponent;
   @ViewChild('scanner') scanner: ZXingScannerComponent = new ZXingScannerComponent;
   isScannerEnabled = false;
   allowedFormats = [ BarcodeFormat.CODE_128,BarcodeFormat.CODABAR,BarcodeFormat.CODE_39,BarcodeFormat.CODE_93, BarcodeFormat.DATA_MATRIX ];
@@ -82,12 +84,7 @@ export class JobProcessService {
         this.arrayForDepartmentList = response.data.Department_DDL;
         this.arrayForLocationList =response.data.LineLocation;
         if(this.cookieService.get('LocationID')!=="undefined" && this.cookieService.get('LocationID')!==null){
-            // this.arrayForLocationList.filter((item)=>{if(item.id ==this.cookieService.get("LocationID")){
-            //   this.LocationID = item;
-            //   this.Location=JSON.stringify(this.LocationID.name).replace(/"/g, '');
-            // }});
             this.LocationID = parseInt(this.cookieService.get('LocationID'));
-
         }
         if(this.cookieService.get('DepartmentID')!=="undefined" && this.cookieService.get('DepartmentID')!==""){
           this.DepartmentID =parseInt(this.cookieService.get("DepartmentID"))
@@ -184,9 +181,7 @@ export class JobProcessService {
   selectedEmployee :any;
   onSelectEmployee(data:any){
     // this.selectedEmployee = data.name.split(' - ')[0]
-
-    this.validateEmployee();
-    
+    this.validateEmployee();    
   }
 
 
@@ -254,17 +249,26 @@ export class JobProcessService {
     const param = {
       'SituationID': 0,
       'TransactionNumber': this.impressionNo,
+      'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
       'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
       return this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
         (response: any) => {
-          if(response.data.AutoProcess[0].Illigible){
-            this.allValidation();
-          }else{
-            // alert('Not Illigible '+this.impressionNo);
-            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ('This case is not eligible for this process.')});
+          console.log(JSON.parse(response.data.AutoProcess));
+          let arrayOfvalidateProcess = JSON.parse(response.data.AutoProcess)
+          if(arrayOfvalidateProcess.ResultSets[0].Result1.length>0){
+            if(arrayOfvalidateProcess.ResultSets[1].Result2[0].Illigible){
+              this.allValidation();
+            }else{
+              // alert('Not Illigible '+this.impressionNo);
+              this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ('This case is not eligible for this process.')});
+              this.impressionNo = '';
+            }
+          }
+          else{
+            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ('Case is not in system.')});
             this.impressionNo = '';
           }
         },
@@ -331,8 +335,9 @@ export class JobProcessService {
   
     return this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).pipe(
       map((response: any) => {
-        if (!this.utilsService.isNullUndefinedOrBlank(response.data.ResultSets[0]?.Result1[0][""])) {
-          this.messageService.add({ severity: 'warn', summary: 'Warn', detail: response.data.ResultSets[0].Result1[0][""] });
+        let arrayOfRistrictProcess = JSON.parse(response.data.AutoProcess);
+        if (!this.utilsService.isNullUndefinedOrBlank(arrayOfRistrictProcess.ResultSets[0]?.Result1[0][""])) {
+          this.messageService.add({ severity: 'warn', summary: 'Warn', detail: arrayOfRistrictProcess.ResultSets[0].Result1[0][""] });
           this.impressionNo='';
           return false;
         } else {
@@ -345,6 +350,7 @@ export class JobProcessService {
   ListOfSkipProcess:any=[];
   SkipProcessListColln:any=[];
   oldImpNo:string='';
+  tempFlag:boolean=false;
   GetSkipProcess(){
     this.ListOfSkipProcess=[];
     for(let item of this.AllValidationArray){
@@ -361,31 +367,45 @@ export class JobProcessService {
         async (response: any) => {
           //console.log(response.data);
           var SkipList = [];
+          this.tempFlag = false;
           SkipList = response.data.AutoProcess;
           if(SkipList.length>0){
+
             for(let item of SkipList){
-              this.SkipProcessListColln.push(item);
+              if(item.IsMandatory == true){
+                this.cancelSkip();
+                this.tempFlag=true;
+                SkipList=[];
+                this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ' Process is mandatory to Process .it cannot be skipped'});
+                break;
+              }
+              else{
+                this.SkipProcessListColln.push(item);
+              }
             }
-            console.log('skipcolln: ',this.SkipProcessListColln);
-            SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
-            this.ListOfSkipProcess.pop();
-            if(this.ListOfSkipProcess.length>0){
-              const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
-              let ImpArray=[
-                {
-                  "JobEntryNo": this.oldImpNo,
-                  "Units": 0,
-                  "Rework1GivenTime": null,
-                  "Rework2GivenTime": null,
-                  "Rework3GivenTime": null,
-                  "Rework4GivenTime": null
-                }
-              ];
-              dublicateData.length>0 ? '' : this.newArrayOfImp.push(...ImpArray);
-              this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
-            }
-            else{
-              await this.getMainGridData(item);
+            if(!this.tempFlag){
+              console.log('skipcolln: ',this.SkipProcessListColln);
+              SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
+              this.ListOfSkipProcess.pop();
+              if(this.ListOfSkipProcess.length>0){
+                const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
+                let ImpArray=[
+                  {
+                    "JobEntryNo": this.oldImpNo,
+                    "Units": 0,
+                    "Rework1GivenTime": null,
+                    "Rework2GivenTime": null,
+                    "Rework3GivenTime": null,
+                    "Rework4GivenTime": null,
+                    "NextStep":"Skip"
+                  }
+                ];
+                dublicateData.length>0 ? '' : this.newArrayOfImp.push(...ImpArray);
+                this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
+              }
+              else{
+                await this.getMainGridData(item);
+              }
             }
           }
           else{
@@ -430,6 +450,7 @@ export class JobProcessService {
                 this.newArrayOfImp.filter((item: { JobEntryNo: any,Units:any; })=>{if(item.JobEntryNo == JobEntryNo){item.Units+=Units}});
               }else{
                 this.newArrayOfImp.length>0 ? this.newArrayOfImp.push(...response.data.AutoProcess) : this.newArrayOfImp.push(response.data.AutoProcess[0]);
+                this.newArrayOfImp.filter((a: { JobEntryNo: any, NextStep:any; })=>{if(a.JobEntryNo == this.oldImpNo){a.NextStep = a.NextStep.split('(').length>1 ? a.NextStep.split('(')[1].toString().slice(0,6) : a.NextStep}})
               }
               console.log(this.newArrayOfImp);
               this.impressionNo = '';
@@ -465,6 +486,8 @@ export class JobProcessService {
     //console.log('paramarray:',this.paramarray);
     this.messageService.add({ severity: 'success', summary: 'Success', detail: "Job Process Successfull ."});
     this.processing ='';
+    this.employee='';
+    // this.wizard.reset();
   }
 
   async submit(item:any,item1:any){
@@ -539,6 +562,7 @@ export class JobProcessService {
   }
 
   cancelSkip(){
+    // this.ListOfSkipProcess=[];
     this.SkipProcessListColln = this.SkipProcessListColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=this.oldImpNo);
     this.AllValidationArrayColln = this.AllValidationArrayColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=this.oldImpNo);
     this.arrayOfImpNo = this.arrayOfImpNo.filter((item: string)=> item != this.oldImpNo);
@@ -588,27 +612,39 @@ export class JobProcessService {
       this.stopScanner();
     }, 15000);
   }
+
   removeItem(impNo: any): void {
     this.SkipProcessListColln = this.SkipProcessListColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=impNo);
     this.AllValidationArrayColln = this.AllValidationArrayColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=impNo);
     this.arrayOfImpNo = this.arrayOfImpNo.filter((item: string)=> item != impNo);
     this.newArrayOfImp = this.newArrayOfImp.filter((item: {JobEntryNo : any})=> item.JobEntryNo != impNo);
   }
+
   onFocused(event:any){}
   searchClearedEmployee(){
     this.arryforEmployee =[];
     this.EmployeeID =null;
-    this.autoComplete.notFound = false;
-    this.autoComplete.query = '';
+    // this.autoComplete.notFound = false;
+    // this.autoComplete.query = '';
   }
   clear(event:any){
     if (event.key === "Enter" || event.key === "Tab" ) {
-    if(this.arryforEmployee.length==0)
-    {
-        this.employee =null;
-        // this.autoComplete.notFound = false;
-        // this.autoComplete.query = '';
+      if(this.arryforEmployee.length==0)
+      {
+          this.employee =null;
+          // this.autoComplete.notFound = false;
+          // this.autoComplete.query = '';
+      }
     }
- }
-}
+  }
+
+  department:string='';
+  process:string='';
+  setLabel(){
+    var departmentItem = this.arrayForDepartmentList.find(item => item.id === this.DepartmentID);
+    this.department = departmentItem ? departmentItem.name : '';
+
+    var processtItem = this.arrayForProcessList.find(item => item.id === this.ProcessID);
+    this.process = processtItem ? processtItem.name : '';
+  }
 }

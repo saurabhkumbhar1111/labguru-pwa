@@ -39,7 +39,8 @@
               <ng-autocomplete style="width:200px;" [data]="arryforEmployee" [searchKeyword]="keyword"
                 placeholder="Enter Employee " (selected)='onSelectEmployee($event)' (inputChanged)='search($event)'
                 (inputFocused)='onFocused($event)' [itemTemplate]="itemTemplate" [notFoundTemplate]="notFoundTemplate"
-                (inputCleared)="searchClearedEmployee()" (keydown.tab)="clear($event)" (keydown.enter)="clear($event)" [(ngModel)]="employee">
+                (inputCleared)="searchClearedEmployee()" (keydown.tab)="clear($event)" (keydown.enter)="clear($event)" 
+                [(ngModel)]="employee">
               </ng-autocomplete>
 
               <ng-template #itemTemplate let-item>
@@ -51,7 +52,7 @@
               </ng-template>
               <button type="button" class="btn btn-success step1footer" style="margin-left: 20px;"
                 [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID"
-                (click)="this.isSettingEnabled = false" awNextStep>Next</button>
+                (click)="this.isSettingEnabled = false; setLabel();" awNextStep>Next</button>
             </div>
           </div>
         </div>
@@ -66,6 +67,10 @@
       <aw-wizard-step>
         <div class="centered-content" [ngClass]="!isFooterEnabled ? 'pointernone' : 'pointerall'">
           <div class="card">
+            <div>
+              <p><b>Department:</b> {{this.department}}</p>
+              <p><b>Process:</b> {{this.process}}</p>
+            </div>
             <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan
               Impression
               No.</div>
@@ -83,18 +88,20 @@
             <div *ngIf="this.newArrayOfImp.length>0">
               <div class="table-container">
                 <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
-                <table class="table table-success table-striped">
+                <table class="table">
                   <tbody>
-                    <tr>
+                    <tr class="table-dark">
                       <th></th>
-                      <th>Impression no</th>
+                      <th>Imp no</th>
                       <th>Unit</th>
+                      <th></th>
                     </tr>
                     <tr *ngFor="let item of newArrayOfImp; let i = index">
                       <td><span (click)="removeItem(item.JobEntryNo)"><i class="fa fa-trash"
                             style="color: red; margin-right: 20px;" aria-hidden="true"></i></span></td>
                       <td>{{item.JobEntryNo}}</td>
                       <td>{{item.Units}}</td>
+                      <td [ngClass]="item.NextStep == 'Skip' ? 'redbg' : 'greenbg'">{{item.NextStep}}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -113,7 +120,7 @@
           <footer *ngIf="!isFooterEnabled" style="display: flex; justify-content: center; align-items: center;">
             <div>
               <h6 style="color: green !important; text-align: center; margin-left: 80px;">{{Donemessage}}</h6>
-              <button type="button" class="btn btn-danger" style="margin-top: 10px;margin-left: 120px;"
+              <button type="button"  class="btn btn-danger" style="margin-top: 10px;margin-left: 120px;"
                 (click)="isFooterEnabled=false; clearArray();" awResetWizard>OK</button>
             </div>
           </footer>
@@ -254,7 +261,6 @@
   <!-- delete Modal -->
   <div class="modal fade" aria-labelledby="exampleModalCenterTitle" id="deleteConfirmationModal" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-body text-center">
             <h3 class="mb-3">Are you sure ? <br /> You want to Continue ..</h3>
@@ -264,7 +270,6 @@
               (click)="closeModal('deleteConfirmationModal');this.isFooterEnabled=false;this.syncSubmit();">Yes</button>
           </div>
         </div>
-      </div>
     </div>
   </div>
 

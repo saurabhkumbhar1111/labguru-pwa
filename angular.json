@@ -16,7 +16,7 @@
             "outputPath": "dist/labguru-pwa-app",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "baseHref": "/Labguru/",
+            "baseHref": "/Labguru_PWA/",
             "polyfills": [
               "zone.js"
             ],
