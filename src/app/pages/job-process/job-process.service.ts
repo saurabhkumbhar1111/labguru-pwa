@@ -52,6 +52,7 @@ export class JobProcessService {
   impressionNoList :boolean = false;
   newArrayOfImp:any=[];
   autoComplete: any;
+  currentStep = 1;
   constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
     public serverVariableService: ServerVariableService,private messageService: MessageService) { 
     this.keyword = "name";
@@ -646,5 +647,11 @@ export class JobProcessService {
 
     var processtItem = this.arrayForProcessList.find(item => item.id === this.ProcessID);
     this.process = processtItem ? processtItem.name : '';
+  }
+  nextStep() {
+    this.currentStep++;
+  }
+  prevStep() {
+    this.currentStep--;
   }
 }

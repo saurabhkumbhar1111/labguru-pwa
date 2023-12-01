@@ -1,9 +1,4 @@
 <div>
-  <!-- <div style="text-align: right;">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" (click)="openModal('mymodal')"
-      data-target="#mymodal" *ngIf="isSettingEnabled" style="margin-right: 20px;border: none;background-color:white;color: black;"><i class="fa-sharp fa-solid fa-gear"></i>
-    </button>
-  </div> -->
   <div style="text-align: right;">
     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
       style="margin-right: 20px;border: none;background-color: white;" data-bs-target="#mymodal"
@@ -11,122 +6,93 @@
       <i class="fa-sharp fa-solid fa-gear" style="color: black;"></i>
     </button>
   </div>
-  <div class="d-flex justify-content-center">
-    <aw-wizard>
-      <!-- <aw-wizard-step>
-        <div>
-          <p>Location: <b> {{this.Location}}</b></p>
-          <p>Department: <b> {{this.Department}}</b></p>
-          <p>Process: <b> {{this.Process}}</b></p>
+  <div *ngIf="currentStep === 1;">
+    <div class="centered-content">
+      <div class="card cardStep1">
+        <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Employee
         </div>
-        <footer style="text-align: right;"><button type="button" class="btn btn-success "
-            (click)="this.isSettingEnabled =false"
-            [disabled]="this.utilsService.isNullUndefinedOrBlank(this.ProcessID) && this.utilsService.isNullUndefinedOrBlank(this.DepartmentID)&& this.utilsService.isNullUndefinedOrBlank(this.LocationID)"
-            awNextStep>Next</button></footer> -->
-      <!-- <footer style="text-align: right;"><button type="button" class="btn btn-success " (click)="this.isSettingEnabled =false" [awGoToStep]="{stepIndex:1}">Next</button></footer> -->
+        <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
+            [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
+            (scanSuccess)="handleScanEmployee($event)" [formats]="allowedFormats">
+          </zxing-scanner></div>
+        <div class="input-group input-group-sm mb-3">
+          <ng-autocomplete style="width:250px;" [data]="arryforEmployee" [searchKeyword]="keyword"
+            placeholder="Enter Employee " (selected)='onSelectEmployee($event)' (inputChanged)='search($event)'
+            (inputFocused)='onFocused($event)' [itemTemplate]="itemTemplate" [notFoundTemplate]="notFoundTemplate"
+            (inputCleared)="searchClearedEmployee()" (keydown.tab)="clear($event)" (keydown.enter)="clear($event)"
+            [(ngModel)]="employee">
+          </ng-autocomplete>
 
-      <!-- </aw-wizard-step> -->
-      <aw-wizard-step>
-        <div class="centered-content">
-          <div class="card">
-            <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Employee
-            </div>
-            <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
-                [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
-                (scanSuccess)="handleScanEmployee($event)" [formats]="allowedFormats">
-              </zxing-scanner></div>
-            <div class="input-group input-group-sm mb-3">
-              <ng-autocomplete style="width:200px;" [data]="arryforEmployee" [searchKeyword]="keyword"
-                placeholder="Enter Employee " (selected)='onSelectEmployee($event)' (inputChanged)='search($event)'
-                (inputFocused)='onFocused($event)' [itemTemplate]="itemTemplate" [notFoundTemplate]="notFoundTemplate"
-                (inputCleared)="searchClearedEmployee()" (keydown.tab)="clear($event)" (keydown.enter)="clear($event)" 
-                [(ngModel)]="employee">
-              </ng-autocomplete>
+          <ng-template #itemTemplate let-item>
+            <a [innerHTML]="item.name"></a>
+          </ng-template>
 
-              <ng-template #itemTemplate let-item>
-                <a [innerHTML]="item.name"></a>
-              </ng-template>
-
-              <ng-template #notFoundTemplate let-notFound>
-                <div [innerHTML]="notFound"></div>
-              </ng-template>
-              <button type="button" class="btn btn-success step1footer" style="margin-left: 20px;"
-                [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID"
-                (click)="this.isSettingEnabled = false; setLabel();" awNextStep>Next</button>
-            </div>
+          <ng-template #notFoundTemplate let-notFound>
+            <div [innerHTML]="notFound"></div>
+          </ng-template>
+          <button type="button" class="btn btn-success step1footer" style="margin-left: 20px;"
+            [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID"
+            (click)="this.isSettingEnabled = false; setLabel();nextStep()">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="currentStep === 2">
+    <div class="centered-content" [ngClass]="!isFooterEnabled ? 'pointernone' : 'pointerall'">
+      <div class="card">
+        <div>
+          <p><b>Department:</b><strong> {{this.department}}</strong></p>
+          <p><b>Process:</b><strong> {{this.process}}</strong></p>
+        </div>
+        <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan
+          Impression
+          No.</div>
+        <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
+            [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
+            (scanSuccess)="handleScanImpression($event)" [formats]="allowedFormats">
+          </zxing-scanner>
+        </div>
+        <div class="input-group input-group-sm mb-3">
+          <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
+            placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
+          <button type="button" [disabled]="this.impressionNo.length==0" class="btn btn-success"
+            style="margin-left: 20px;" *ngIf="!isNextEnabled" (click)="validateProcess()">Add</button>
+        </div>
+        <div *ngIf="this.newArrayOfImp.length>0">
+          <div class="table-container">
+            <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
+            <table class="table">
+              <tbody>
+                <tr class="table-dark">
+                  <th></th>
+                  <th>Imp no</th>
+                  <th>Unit</th>
+                  <th></th>
+                </tr>
+                <tr *ngFor="let item of newArrayOfImp; let i = index">
+                  <td><span (click)="removeItem(item.JobEntryNo)"><i class="fa fa-trash"
+                        style="color: red; margin-right: 20px;" aria-hidden="true"></i></span></td>
+                  <td>{{item.JobEntryNo}}</td>
+                  <td>{{item.Units}}</td>
+                  <td [ngClass]="item.NextStep == 'Skip' ? 'redbg' : 'greenbg'">{{item.NextStep}}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-        <div>
-          <!-- <footer>
-            <button type="button" class="btn btn-success step1footer"
-              [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID"
-              (click)="this.isSettingEnabled = false" awNextStep>Next</button>
-          </footer> -->
-        </div>
-      </aw-wizard-step>
-      <aw-wizard-step>
-        <div class="centered-content" [ngClass]="!isFooterEnabled ? 'pointernone' : 'pointerall'">
-          <div class="card">
-            <div>
-              <p><b>Department:</b> {{this.department}}</p>
-              <p><b>Process:</b> {{this.process}}</p>
-            </div>
-            <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan
-              Impression
-              No.</div>
-            <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
-                [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
-                (scanSuccess)="handleScanImpression($event)" [formats]="allowedFormats">
-              </zxing-scanner>
-            </div>
-            <div class="input-group input-group-sm mb-3">
-              <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
-                placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
-              <button type="button" [disabled]="this.impressionNo.length==0" class="btn btn-success"
-                style="margin-left: 20px;" *ngIf="!isNextEnabled" (click)="validateProcess()">Add</button>
-            </div>
-            <div *ngIf="this.newArrayOfImp.length>0">
-              <div class="table-container">
-                <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
-                <table class="table">
-                  <tbody>
-                    <tr class="table-dark">
-                      <th></th>
-                      <th>Imp no</th>
-                      <th>Unit</th>
-                      <th></th>
-                    </tr>
-                    <tr *ngFor="let item of newArrayOfImp; let i = index">
-                      <td><span (click)="removeItem(item.JobEntryNo)"><i class="fa fa-trash"
-                            style="color: red; margin-right: 20px;" aria-hidden="true"></i></span></td>
-                      <td>{{item.JobEntryNo}}</td>
-                      <td>{{item.Units}}</td>
-                      <td [ngClass]="item.NextStep == 'Skip' ? 'redbg' : 'greenbg'">{{item.NextStep}}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <footer style="text-align: right;" *ngIf="isFooterEnabled">
-            <button type="button" class="btn btn-danger btnPrevious"
-              (click)="this.clearArray();this.isSettingEnabled = true" [disabled]="isScannerEnabled"
-              awPreviousStep>Previous</button>
-            <button type="button" class="btn btn-success" (click)="openModal('deleteConfirmationModal')"
-              [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal">Submit</button>
-          </footer>
-          <footer *ngIf="!isFooterEnabled" style="display: flex; justify-content: center; align-items: center;">
-            <div>
-              <h6 style="color: green !important; text-align: center; margin-left: 80px;">{{Donemessage}}</h6>
-              <button type="button"  class="btn btn-danger" style="margin-top: 10px;margin-left: 120px;"
-                (click)="isFooterEnabled=false; clearArray();" awResetWizard>OK</button>
-            </div>
-          </footer>
-        </div>
-      </aw-wizard-step>
-    </aw-wizard>
+      </div>
+    </div>
+    <div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center">
+      <footer *ngIf="isFooterEnabled">
+        <button type="button" class="btn btn-danger "
+          (click)="this.clearArray();prevStep();this.isSettingEnabled = true"
+          [disabled]="isScannerEnabled" style="margin-right: 25vh;">Previous</button>
+        <button type="button" class="btn btn-success" (click)="syncSubmit();prevStep();this.clearArray()"
+          [disabled]="this.arrayOfImpNo.length==0 || isScannerEnabled" >Submit</button>
+      </footer>
+    </div>
   </div>
 </div>
 <p-toast position="top-center"></p-toast>
@@ -206,71 +172,53 @@
       </div>
     </div>
   </div>
-  </div>
+</div>
 
-  <!-- Message Modal -->
-  <div class="modal" aria-labelledby="exampleModalCenterTitle" id="messageModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Skip Process List</h5>
-          <!-- <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('messageModal')"
+<!-- Message Modal -->
+<div class="modal" aria-labelledby="exampleModalCenterTitle" id="messageModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Skip Process List</h5>
+        <!-- <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('messageModal')"
           data-dismiss="modal" title="Close" style="background: none;color: black;"><i
             class="fa-solid fa-xmark"></i></button> -->
-        </div>
-        <div class="modal-body overflow">
-          <b>Below Are/Is Skip Process List:</b>
-          <p *ngFor="let item of ListOfSkipProcess">
-            {{item}}
-          </p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-success" (click)="closeModal('messageModal');"
-            data-dismiss="modal">Submit</button>
-          <button type="button" class="btn btn-danger" (click)="closeModal('messageModal');cancelSkip();"
-            data-dismiss="modal">Cancel</button>
-        </div>
+      </div>
+      <div class="modal-body overflow">
+        <b>Below Are/Is Skip Process List:</b>
+        <p *ngFor="let item of ListOfSkipProcess">
+          {{item}}
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" (click)="closeModal('messageModal');"
+          data-dismiss="modal">Submit</button>
+        <button type="button" class="btn btn-danger" (click)="closeModal('messageModal');cancelSkip();"
+          data-dismiss="modal">Cancel</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Message Modal -->
-  <div class="modal" aria-labelledby="exampleModalCenterTitle" id="confirmModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Message</h5>
-          <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('confirmModal')"
-            data-dismiss="modal" title="Close" style="background: none; color: black;"><i
-              class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="modal-body">
-          <b>Do you wish to keep scanning?</b>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-success" (click)="closeModal('confirmModal'); this.isNextEnabled = false"
-            data-dismiss="modal">Yes</button>
-          <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal'); this.isNextEnabled = true"
-            data-dismiss="modal">No</button>
-        </div>
+<!-- Message Modal -->
+<div class="modal" aria-labelledby="exampleModalCenterTitle" id="confirmModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color: white" id="exampleModalLongTitle">Message</h5>
+        <button class="btn btn-icon ml-2 justify-content-end d-flex mr-2" (click)="closeModal('confirmModal')"
+          data-dismiss="modal" title="Close" style="background: none; color: black;"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <b>Do you wish to keep scanning?</b>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" (click)="closeModal('confirmModal'); this.isNextEnabled = false"
+          data-dismiss="modal">Yes</button>
+        <button type="button" class="btn btn-danger" (click)="closeModal('confirmModal'); this.isNextEnabled = true"
+          data-dismiss="modal">No</button>
       </div>
     </div>
   </div>
-
-
-  <!-- delete Modal -->
-  <div class="modal fade" aria-labelledby="exampleModalCenterTitle" id="deleteConfirmationModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-body text-center">
-            <h3 class="mb-3">Are you sure ? <br /> You want to Continue ..</h3>
-            <button type="button" class="btn btn-danger mr-5" data-bs-dismiss="modal"
-              (click)="closeModal('deleteConfirmationModal')">No</button>
-            <button type="button" class="btn btn-success" style="margin-left:20px ;" data-bs-dismiss="modal"
-              (click)="closeModal('deleteConfirmationModal');this.isFooterEnabled=false;this.syncSubmit();">Yes</button>
-          </div>
-        </div>
-    </div>
-  </div>
-
-
+</div>

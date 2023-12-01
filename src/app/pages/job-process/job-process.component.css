@@ -34,19 +34,19 @@
   footer{
     position: absolute;
     bottom: 12px;
-  }
- @media only screen and (min-width: 768px) {
+  } 
+  @media only screen and (min-width: 768px) {
   footer{
     position: absolute;
     bottom: 12px;
   }
-}
-@media only screen and (min-width: 590px) {
+} 
+ @media only screen and (min-width: 590px) {
   footer{
     position: absolute;
     bottom: 12px;
   }
-}
+} 
 
 label{
   display: flex;
@@ -68,8 +68,8 @@ zxing-scanner {
   height: 60vh;
     overflow: auto;
 }
-
-.btnPrevious{
+ 
+ .btnPrevious{
   margin-right: 130px !important;
   margin-left: 10px;
  }
@@ -77,12 +77,6 @@ zxing-scanner {
 
   .btnPrevious{
     margin-right: 180px;
-   }
-}
-@media only screen and (min-width: 375px) {
-
-  .btnPrevious{
-    margin-right: 190px;
    }
 }
 
@@ -98,7 +92,7 @@ zxing-scanner {
     padding: 15px;
     margin: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    width: 350px;
   } 
   .table-container {
     max-height: 200px;
@@ -114,5 +108,12 @@ zxing-scanner {
   .greenbg{
     background-color: rgb(0, 238, 0);
   }
-
+ 
+  footer{
+    position: absolute;
+    bottom: 12px;
+  }
+  strong{
+    color: #442be2;
+  }
   
