@@ -20,7 +20,7 @@
             placeholder="Enter Employee " (selected)='onSelectEmployee($event)' (inputChanged)='search($event)'
             (inputFocused)='onFocused($event)' [itemTemplate]="itemTemplate" [notFoundTemplate]="notFoundTemplate"
             (inputCleared)="searchClearedEmployee()" (keydown.tab)="clear($event)" (keydown.enter)="clear($event)"
-            [(ngModel)]="employee">
+            [(ngModel)]="this.employee">
           </ng-autocomplete>
 
           <ng-template #itemTemplate let-item>
@@ -31,7 +31,7 @@
             <div [innerHTML]="notFound"></div>
           </ng-template>
           <button type="button" class="btn btn-success step1footer" style="margin-left: 20px;"
-            [disabled]="isScannerEnabled || !employee || !LocationID || !DepartmentID || !ProcessID"
+            [disabled]="isScannerEnabled || !employeeSelected || !LocationID || !DepartmentID || !ProcessID"
             (click)="this.isSettingEnabled = false; setLabel();nextStep()">Next</button>
         </div>
       </div>
@@ -115,8 +115,8 @@
                 </td>
                 <td>
                   <ng-select class="mb-2" [items]="arrayForLocationList" dropdownPosition="bottom"
-                    notFoundText="Location not found" [clearable]="true" [(ngModel)]="LocationID" bindLabel="name"
-                    bindValue="id" placeholder="Location">
+                    notFoundText="Location not found" [clearable]="false" [(ngModel)]="LocationID" bindLabel="name"
+                    bindValue="id" placeholder="Select Location">
                   </ng-select>
                 </td>
               </tr>
@@ -126,8 +126,8 @@
                 </td>
                 <td>
                   <ng-select class="mb-2" [items]="arrayForDepartmentList" [dropdownPosition]="'bottom'"
-                    notFoundText="Department not found" [clearable]="true" [(ngModel)]="DepartmentID" bindLabel="name"
-                    bindValue="id" (change)="onSelectDepartment()" placeholder="Department">
+                    notFoundText="Department not found" [clearable]="false" [(ngModel)]="DepartmentID" bindLabel="name"
+                    bindValue="id" (change)="onSelectDepartment()" placeholder="Select Department">
                   </ng-select>
                 </td>
               </tr>
@@ -137,8 +137,8 @@
                 </td>
                 <td>
                   <ng-select class="mb-2" [items]="arrayForProcessList" [dropdownPosition]="'bottom'"
-                    notFoundText="Process not found" [clearable]="true" [(ngModel)]="ProcessID" bindLabel="name"
-                    bindValue="id" placeholder="select a Process" [disabled]="!processJob">
+                    notFoundText="Process not found" [clearable]="false" [(ngModel)]="ProcessID" bindLabel="name"
+                    bindValue="id" placeholder="Select Process" [disabled]="!processJob">
                   </ng-select>
                 </td>
               </tr>

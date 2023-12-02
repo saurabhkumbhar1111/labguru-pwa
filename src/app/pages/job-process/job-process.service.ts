@@ -3,12 +3,9 @@ import {UtilsService} from '../../services/utils.service'
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ServerVariableService } from 'src/app/services/server-variable.service';
-import { Deserialize } from 'cerialize';
 import { CookieService } from 'ngx-cookie-service';
-import { ThisReceiver } from '@angular/compiler';
 import { BarcodeFormat } from '@zxing/library';
 import { ZXingScannerComponent } from '@zxing/ngx-scanner';
-import { Result } from '@zxing/library';
 import { MessageService } from 'primeng/api';
 import { map, Observable } from 'rxjs';
 import { WizardComponent } from 'angular-archwizard';
@@ -21,7 +18,7 @@ export class JobProcessService {
   @ViewChild('wizard') wizard!: WizardComponent;
   @ViewChild('scanner') scanner: ZXingScannerComponent = new ZXingScannerComponent;
   isScannerEnabled = false;
-  allowedFormats = [ BarcodeFormat.CODE_128,BarcodeFormat.CODABAR,BarcodeFormat.CODE_39,BarcodeFormat.CODE_93, BarcodeFormat.DATA_MATRIX ];
+  allowedFormats = [ BarcodeFormat.CODE_128,BarcodeFormat.QR_CODE];
   Location:string='';
   Department:string='';
   Process:string='';
@@ -31,9 +28,9 @@ export class JobProcessService {
    Donemessage : string = "Process Success";
   OrganizationUnitID: any;
   EmployeeID : any ; 
-  DepartmentID: number =0;
-  ProcessID: number = 0;
-  LocationID: number =0;
+  DepartmentID!: number;
+  ProcessID!: number;
+  LocationID!: number;
   arrayForDepartmentList: any[] = [];
   arrayForProcessList: any[] = [];
   arrayForLocationList: any[] = [];
@@ -53,14 +50,15 @@ export class JobProcessService {
   newArrayOfImp:any=[];
   autoComplete: any;
   currentStep = 1;
+  employeeSelected!:boolean;
   constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
     public serverVariableService: ServerVariableService,private messageService: MessageService) { 
     this.keyword = "name";
     this.getAllDropDownData();
     if(this.cookieService.get('employeeName')!=="undefined" && this.cookieService.get('employeeName')!==""){
-      //console.log(this.cookieService.get('employeeName').split(' - '));
       this.getMockEmployee(this.cookieService.get('employeeName').split(' - ')[0],1);
       this.employee = this.arryforEmployee[0];
+      this.employeeSelected=true;
   }
   }
   getAllDropDownData() {
@@ -84,7 +82,7 @@ export class JobProcessService {
       (response: any) => {
         this.arrayForDepartmentList = response.data.Department_DDL;
         this.arrayForLocationList =response.data.LineLocation;
-        if(this.cookieService.get('LocationID')!=="undefined" && this.cookieService.get('LocationID')!==null){
+        if(this.cookieService.get('LocationID')!=="undefined" && this.cookieService.get('LocationID')!==""){
             this.LocationID = parseInt(this.cookieService.get('LocationID'));
         }
         if(this.cookieService.get('DepartmentID')!=="undefined" && this.cookieService.get('DepartmentID')!==""){
@@ -148,9 +146,10 @@ export class JobProcessService {
   }
   
   search(search :any) {
-    // if(search.length>=4){
+    this.employeeSelected=false;
+    if(search.length>=4){
       this.getMockEmployee(search.query,0);
-    // }
+    }
   }
 
     getMockEmployee(term:any,id:number){
@@ -181,6 +180,8 @@ export class JobProcessService {
     }
   selectedEmployee :any;
   onSelectEmployee(data:any){
+    this.employee = data;
+    this.employeeSelected=true;
     // this.selectedEmployee = data.name.split(' - ')[0]
     this.validateEmployee();    
   }
@@ -240,7 +241,7 @@ export class JobProcessService {
 
   validateProcess(){
     this.impressionNo = this.impressionNo.trim();
-    let ImpAdded = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.impressionNo);
+    let ImpAdded = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo.toLowerCase() == this.impressionNo.toLowerCase());
     // this.impressionNoList = true;
     if(ImpAdded.length>0){
       this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Impression already added' });
@@ -312,7 +313,7 @@ export class JobProcessService {
               }
             });
           }else{
-            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: AlertMsg });
+            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: AlertMsg,sticky: true });
             this.impressionNo = '';
           }
         },
@@ -338,7 +339,7 @@ export class JobProcessService {
       map((response: any) => {
         let arrayOfRistrictProcess = JSON.parse(response.data.AutoProcess);
         if (!this.utilsService.isNullUndefinedOrBlank(arrayOfRistrictProcess.ResultSets[0]?.Result1[0][""])) {
-          this.messageService.add({ severity: 'warn', summary: 'Warn', detail: arrayOfRistrictProcess.ResultSets[0].Result1[0][""] });
+          this.messageService.add({ severity: 'warn', summary: 'Warn', detail: arrayOfRistrictProcess.ResultSets[0].Result1[0][""],sticky: true });
           this.impressionNo='';
           return false;
         } else {
@@ -377,7 +378,7 @@ export class JobProcessService {
                 this.cancelSkip();
                 this.tempFlag=true;
                 SkipList=[];
-                this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ' Process is mandatory to Process .it cannot be skipped'});
+                this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ' Process is mandatory to Process .it cannot be skipped',sticky: true});
                 break;
               }
               else{
@@ -457,7 +458,7 @@ export class JobProcessService {
               this.impressionNo = '';
             }
             else{
-              this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Job Process Redo Limit Exceeds of '+this.oldImpNo+ '!'});
+              this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Job Process Redo Limit Exceeds of '+this.oldImpNo+ '!',sticky: true});
             }
           }
           resolve('');
@@ -484,11 +485,9 @@ export class JobProcessService {
     if(this.reworkProcessColln.length>0){
       this.submitReworkProcess();
     }
-    //console.log('paramarray:',this.paramarray);
     this.messageService.add({ severity: 'success', summary: 'Success', detail: "Job Process Successfull ."});
     this.processing ='';
-    this.employee='';
-    // this.wizard.reset();
+    this.searchClearedEmployee();
   }
 
   async submit(item:any,item1:any){
@@ -592,6 +591,7 @@ export class JobProcessService {
       this.scannedData = result;
       console.log(this.scannedData);
       this.getMockEmployee(this.scannedData,1);
+      this.validateEmployee();
       this.stopScanner(); 
     }
   }
@@ -609,9 +609,9 @@ export class JobProcessService {
   startScanner() {
     this.isScannerEnabled = true;
     this.scanImp = false;
-    setTimeout(() => {
-      this.stopScanner();
-    }, 15000);
+    // setTimeout(() => {
+    //   this.stopScanner();
+    // }, 15000);
   }
 
   removeItem(impNo: any): void {
@@ -621,10 +621,14 @@ export class JobProcessService {
     this.newArrayOfImp = this.newArrayOfImp.filter((item: {JobEntryNo : any})=> item.JobEntryNo != impNo);
   }
 
-  onFocused(event:any){}
+  onFocused(event:any){
+    // this.selectedEmployee=false;
+    // console.log(this.selectedEmployee);
+  }
   searchClearedEmployee(){
     this.arryforEmployee =[];
     this.EmployeeID =null;
+    this.employeeSelected=false;
     // this.autoComplete.notFound = false;
     // this.autoComplete.query = '';
   }
@@ -633,8 +637,6 @@ export class JobProcessService {
       if(this.arryforEmployee.length==0)
       {
           this.employee =null;
-          // this.autoComplete.notFound = false;
-          // this.autoComplete.query = '';
       }
     }
   }
@@ -648,6 +650,7 @@ export class JobProcessService {
     var processtItem = this.arrayForProcessList.find(item => item.id === this.ProcessID);
     this.process = processtItem ? processtItem.name : '';
   }
+
   nextStep() {
     this.currentStep++;
   }
