@@ -60,8 +60,8 @@ label{
   font-size: 15px;
 }
 zxing-scanner {
-  max-width: 200px;
-  height: 150px;
+  width:auto;
+  height: auto;
   margin: 0 auto;
   }
 .overflow{
