@@ -51,6 +51,7 @@ export class JobProcessService {
   autoComplete: any;
   currentStep = 1;
   employeeSelected!:boolean;
+  autofocusEnabled :boolean = true;
   constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
     public serverVariableService: ServerVariableService,private messageService: MessageService) { 
     this.keyword = "name";
@@ -67,12 +68,11 @@ export class JobProcessService {
       'LoginCompanyID':1,
       'LoginReferenceID' :864,
       'LoginRoleID':1,
-      'LoginUserID' : 1,
+      'LoginUserID' : this.utilsService.getLoginUsers()?.LoginUserID,
       'ModuleID' :0,
       'OrganizationUnitID':0,
       'SSCID':3033,
       'SituationID':1,
-      'UserID':1
     }
  this.postDropdownData(param);
 
@@ -591,8 +591,8 @@ export class JobProcessService {
       this.scannedData = result;
       console.log(this.scannedData);
       this.getMockEmployee(this.scannedData,1);
-      this.validateEmployee();
       this.stopScanner(); 
+      this.validateEmployee();
     }
   }
 
@@ -643,12 +643,16 @@ export class JobProcessService {
 
   department:string='';
   process:string='';
+  location:string='';
   setLabel(){
     var departmentItem = this.arrayForDepartmentList.find(item => item.id === this.DepartmentID);
     this.department = departmentItem ? departmentItem.name : '';
 
     var processtItem = this.arrayForProcessList.find(item => item.id === this.ProcessID);
     this.process = processtItem ? processtItem.name : '';
+
+    var locationItem = this.arrayForLocationList.find(item => item.id === this.LocationID);
+    this.location = locationItem ? locationItem.name : '';
   }
 
   nextStep() {

@@ -12,12 +12,12 @@
         <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan Employee
         </div>
         <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
-            [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
+            [(device)]="selectedDevice" [autofocusEnabled]="true" (camerasFound)="camerasFoundHandler($event)"
             (scanSuccess)="handleScanEmployee($event)" [formats]="allowedFormats">
           </zxing-scanner></div>
         <div class="input-group input-group-sm mb-3">
           <ng-autocomplete style="width:250px;" [data]="arryforEmployee" [searchKeyword]="keyword"
-            placeholder="Enter Employee " (selected)='onSelectEmployee($event)' (inputChanged)='search($event)'
+            placeholder="Enter Employee " (selected)='onSelectEmployee($event);!isScannerEnabled' (inputChanged)='search($event)'
             (inputFocused)='onFocused($event)' [itemTemplate]="itemTemplate" [notFoundTemplate]="notFoundTemplate"
             (inputCleared)="searchClearedEmployee()" (keydown.tab)="clear($event)" (keydown.enter)="clear($event)"
             [(ngModel)]="this.employee">
@@ -46,8 +46,9 @@
     <div class="centered-content" [ngClass]="!isFooterEnabled ? 'pointernone' : 'pointerall'">
       <div class="card">
           <div>
-            <p><b>Department:</b><strong> {{this.department}}</strong></p>
-            <p><b>Process:</b><strong> {{this.process}}</strong></p>
+            <p class="lab"><b>Department:</b><strong> {{this.department}}</strong></p>
+            <p class="lab"><b>Process:</b><strong> {{this.process}}</strong></p>
+            <p class="lab"><b>Location:</b><strong> {{this.location}}</strong></p>
           </div>
           <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan
             Impression

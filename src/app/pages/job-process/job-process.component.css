@@ -1,36 +1,7 @@
-/* Apply styles to the wizard container */
-.aw-wizard {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  
-  /* Apply styles to each step */
-  .aw-wizard-step {
-    display: none;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 20px;
-  }
-  
-  /* Show the first step by default */
-  .aw-wizard-step[data-step="1"] {
-    display: block;
-  }
-  
-  /* Style the step title */
-  .step-title {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-
   .modal-header{
     background-color: #18A3E4 !important;
   }
-  aw-wizard-navigation-bar >ul {
-    list-style-type: none;
-  }
+
   footer{
     position: absolute;
     bottom: 12px;
@@ -60,25 +31,20 @@ label{
   font-size: 15px;
 }
 zxing-scanner {
-  width:auto;
-  height: auto;
+  width:250px;
+  height:100px;
   margin: 0 auto;
+  overflow: hidden;
   }
 .overflow{
-  height: 60vh;
-    overflow: auto;
+  height: 200px;
+  overflow: auto;
 }
  
  .btnPrevious{
   margin-right: 130px !important;
   margin-left: 10px;
  }
- @media only screen and (min-width: 390px) {
-
-  .btnPrevious{
-    margin-right: 180px;
-   }
-}
 
 .centered-content{
   display: flex;
@@ -116,4 +82,6 @@ zxing-scanner {
   strong{
     color: #442be2;
   }
-  
+  .lab{
+    margin-bottom: 10px;
+  }
