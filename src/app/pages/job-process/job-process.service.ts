@@ -60,7 +60,7 @@ export class JobProcessService {
       this.getMockEmployee(this.cookieService.get('employeeName').split(' - ')[0],1);
       this.employee = this.arryforEmployee[0];
       this.employeeSelected=true;
-  }
+    }
   }
   getAllDropDownData() {
     const param ={
@@ -169,7 +169,13 @@ export class JobProcessService {
         (response: any) => {
          this.arryforEmployee = [...response.data.Customer];
           if(id==1){
-            this.employee = this.arryforEmployee[0];
+            if(this.arryforEmployee.length>0){
+              this.employee = this.arryforEmployee[0];
+              this.employeeSelected = true;
+            }
+            else{
+              this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'No Record Found.' });
+            }
           }
         },
         (error) => {
@@ -199,7 +205,7 @@ export class JobProcessService {
         (response: any) => {
           if(this.utilsService.isNullUndefinedOrBlank(response.data.AutoProcess[0])){
             this.employee='';
-            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'No record found.' });
+            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'No Record Found.' });
           }
         },
         (error) => {
@@ -229,14 +235,14 @@ export class JobProcessService {
     this.newArrayOfImp = [];
   }
 
-  deleteModal(){}
   onSubmitSettingModal(){
     this.cookieService.set("LocationID",this.LocationID.toString(),this.expiryCookiesDate);
     this.cookieService.set("DepartmentID",this.DepartmentID.toString(),this.expiryCookiesDate);
     this.cookieService.set("ProcessID",this.ProcessID.toString(),this.expiryCookiesDate);
-    !this.utilsService.isNullUndefinedOrBlank(this.employee) ? this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate):'';
-    !this.utilsService.isNullUndefinedOrBlank(this.employee) ?this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate):'';
-
+    // this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate);
+    // this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate);
+    !this.utilsService.isNullUndefinedOrBlank(this.employee) ? this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate):this.cookieService.set("employeeId",'',this.expiryCookiesDate);
+    !this.utilsService.isNullUndefinedOrBlank(this.employee) ?this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate):this.cookieService.set("employeeName",'',this.expiryCookiesDate);
   }
 
   validateProcess(){
@@ -244,7 +250,7 @@ export class JobProcessService {
     let ImpAdded = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo.toLowerCase() == this.impressionNo.toLowerCase());
     // this.impressionNoList = true;
     if(ImpAdded.length>0){
-      this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Impression already added' });
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Impression already added' });
       return;
     }
     this.oldImpNo=this.impressionNo;
@@ -261,16 +267,17 @@ export class JobProcessService {
           console.log(JSON.parse(response.data.AutoProcess));
           let arrayOfvalidateProcess = JSON.parse(response.data.AutoProcess)
           if(arrayOfvalidateProcess.ResultSets[0].Result1.length>0){
+            this.OrganizationUnitID = arrayOfvalidateProcess.ResultSets[0].Result1[0].OrganizationUnitID;
             if(arrayOfvalidateProcess.ResultSets[1].Result2[0].Illigible){
               this.allValidation();
             }else{
               // alert('Not Illigible '+this.impressionNo);
-              this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ('This case is not eligible for this process.')});
+              this.messageService.add({ severity: 'warn', summary: 'Warning', detail: ('This case is not eligible for this process.')});
               this.impressionNo = '';
             }
           }
           else{
-            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ('Case is not in system.')});
+            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: ('Case is not in system.')});
             this.impressionNo = '';
           }
         },
@@ -289,7 +296,8 @@ export class JobProcessService {
     const param = {
       'SituationID': 1,
       'TransactionNumber': this.impressionNo,
-      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0
+      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0,
+      'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
@@ -313,7 +321,7 @@ export class JobProcessService {
               }
             });
           }else{
-            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: AlertMsg,sticky: true });
+            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: AlertMsg,sticky: true });
             this.impressionNo = '';
           }
         },
@@ -339,7 +347,7 @@ export class JobProcessService {
       map((response: any) => {
         let arrayOfRistrictProcess = JSON.parse(response.data.AutoProcess);
         if (!this.utilsService.isNullUndefinedOrBlank(arrayOfRistrictProcess.ResultSets[0]?.Result1[0][""])) {
-          this.messageService.add({ severity: 'warn', summary: 'Warn', detail: arrayOfRistrictProcess.ResultSets[0].Result1[0][""],sticky: true });
+          this.messageService.add({ severity: 'warn', summary: 'Warning', detail: arrayOfRistrictProcess.ResultSets[0].Result1[0][""],sticky: true });
           this.impressionNo='';
           return false;
         } else {
@@ -378,7 +386,7 @@ export class JobProcessService {
                 this.cancelSkip();
                 this.tempFlag=true;
                 SkipList=[];
-                this.messageService.add({ severity: 'warn', summary: 'Warn', detail: ' Process is mandatory to Process .it cannot be skipped',sticky: true});
+                this.messageService.add({ severity: 'warn', summary: 'Warning', detail: ' Process is mandatory to Process .it cannot be skipped',sticky: true});
                 break;
               }
               else{
@@ -432,7 +440,8 @@ export class JobProcessService {
       'TransactionNumber': item.Transactionnumber,
       'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0,
       'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
-      'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
+      'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0,
+      'OrganizationUnitID' : this.OrganizationUnitID
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
@@ -441,24 +450,37 @@ export class JobProcessService {
         (response: any) => {
           if(response.data.AutoProcess.length==0){
             this.impressionNo = '';
-            this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Previous process is not Complete or it require doctor confirmation or case is discarded or case is delivered.' });
+            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Previous process is not Complete or it require doctor confirmation or case is discarded or case is delivered.' });
           }
           else{
             if(response.data.AutoProcess[0].Rework4GivenTime==null){
               let JobEntryNo = response.data.AutoProcess[0].JobEntryNo;
               let Units = response.data.AutoProcess[0].Units;
-              const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == JobEntryNo);
+              const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo.toLowerCase() == JobEntryNo.toLowerCase());
               if(dublicateData.length>0){
                 this.newArrayOfImp.filter((item: { JobEntryNo: any,Units:any; })=>{if(item.JobEntryNo == JobEntryNo){item.Units+=Units}});
               }else{
                 this.newArrayOfImp.length>0 ? this.newArrayOfImp.push(...response.data.AutoProcess) : this.newArrayOfImp.push(response.data.AutoProcess[0]);
-                this.newArrayOfImp.filter((a: { JobEntryNo: any, NextStep:any; })=>{if(a.JobEntryNo == this.oldImpNo){a.NextStep = a.NextStep.split('(').length>1 ? a.NextStep.split('(')[1].toString().slice(0,6) : a.NextStep}})
+                this.newArrayOfImp.filter((a: { JobEntryNo: any, NextStep:any; })=>{if(a.JobEntryNo.toLowerCase() == this.oldImpNo.toLowerCase())
+                  {
+                    // a.NextStep = a.NextStep.split('(').length == 1 ? a.NextStep.split('(')[1].toString().slice(0,6) : a.NextStep == 'Job Received From Process' ? 'Job Recd' : a.NextStep == 'Job Issued For Process' ? 'Job Issd' : a.NextStep
+                    a.NextStep = 
+                    (a.NextStep === "Job Received From Process (Redo 1)") ? 'Redo 1' : 
+                    (a.NextStep === "Job Received From Process (Redo 2)") ? 'Redo 2' : 
+                    (a.NextStep === "Job Received From Process (Redo 3)") ? 'Redo 3' : 
+                    (a.NextStep === "Job Received From Process") ? 'Job Recd' : 
+                    (a.NextStep === "Job Issued For Process") ? 'Job Issd' : 
+                    a.NextStep
+                  }
+                })
               }
-              console.log(this.newArrayOfImp);
+               setTimeout(() => {
+                console.log(this.newArrayOfImp);
+                }, 2000);
               this.impressionNo = '';
             }
             else{
-              this.messageService.add({ severity: 'warn', summary: 'Warn', detail: 'Job Process Redo Limit Exceeds of '+this.oldImpNo+ '!',sticky: true});
+              this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Job Process Redo Limit Exceeds of '+this.oldImpNo+ '!',sticky: true});
             }
           }
           resolve('');
@@ -486,8 +508,12 @@ export class JobProcessService {
       this.submitReworkProcess();
     }
     this.messageService.add({ severity: 'success', summary: 'Success', detail: "Job Process Successfull ."});
-    this.processing ='';
-    this.searchClearedEmployee();
+    if(this.cookieService.get('employeeName')=="undefined" || this.cookieService.get('employeeName')==""){
+      this.employee = null;
+      this.employeeSelected=false;
+      this.searchClearedEmployee();
+    }
+    this.clearArray();
   }
 
   async submit(item:any,item1:any){
@@ -587,11 +613,11 @@ export class JobProcessService {
   }
 
   handleScanEmployee(result:any):void{
+    this.stopScanner();
     if (result) {
       this.scannedData = result;
       console.log(this.scannedData);
       this.getMockEmployee(this.scannedData,1);
-      this.stopScanner(); 
       this.validateEmployee();
     }
   }
