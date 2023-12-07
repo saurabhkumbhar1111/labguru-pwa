@@ -61,7 +61,7 @@ zxing-scanner {
     width: 350px;
   } 
   .table-container {
-    max-height: 200px;
+    max-height: 230px;
     overflow-y: auto;
   }
 
@@ -83,5 +83,31 @@ zxing-scanner {
     color: #442be2;
   }
   .lab{
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
+  input{
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .inputbox{
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px
+  }
+  @media screen and (min-width :360px) {
+    .table-container {
+      max-height: 30vh;
+      overflow-y: auto;
+    }
+  }
+
+  @media only screen and (min-width:400px) and (max-width:450px) {
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .overflow{
+      height: 400px;
+      overflow: auto;
+    }
+  } 

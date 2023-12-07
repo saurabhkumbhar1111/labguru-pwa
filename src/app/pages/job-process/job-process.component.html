@@ -15,9 +15,9 @@
             [(device)]="selectedDevice" [autofocusEnabled]="true" (camerasFound)="camerasFoundHandler($event)"
             (scanSuccess)="handleScanEmployee($event)" [formats]="allowedFormats">
           </zxing-scanner></div>
-        <div class="input-group input-group-sm mb-3">
-          <ng-autocomplete style="width:250px;" [data]="arryforEmployee" [searchKeyword]="keyword"
-            placeholder="Enter Employee " (selected)='onSelectEmployee($event);!isScannerEnabled' (inputChanged)='search($event)'
+        <div class="input-group input-group-sm mb-3 autocust">
+          <ng-autocomplete style="width:100%;" [data]="arryforEmployee" [searchKeyword]="keyword"
+            placeholder="Enter Employee " (selected)='onSelectEmployee($event)' (inputChanged)='search($event)'
             (inputFocused)='onFocused($event)' [itemTemplate]="itemTemplate" [notFoundTemplate]="notFoundTemplate"
             (inputCleared)="searchClearedEmployee()" (keydown.tab)="clear($event)" (keydown.enter)="clear($event)"
             [(ngModel)]="this.employee">
@@ -30,10 +30,13 @@
           <ng-template #notFoundTemplate let-notFound>
             <div [innerHTML]="notFound"></div>
           </ng-template>
-          <button type="button" class="btn btn-success step1footer" style="margin-left: 20px;"
+          <!-- <button type="button" class="btn btn-success step1footer" style="margin-left: 20px;"
+            [disabled]="isScannerEnabled || !employeeSelected || !LocationID || !DepartmentID || !ProcessID"
+            (click)="this.isSettingEnabled = false; setLabel();nextStep()">Next</button> -->
+        </div>
+        <button type="button" class="btn btn-success step1footer" style="margin-left: 2px;"
             [disabled]="isScannerEnabled || !employeeSelected || !LocationID || !DepartmentID || !ProcessID"
             (click)="this.isSettingEnabled = false; setLabel();nextStep()">Next</button>
-        </div>
       </div>
     </div>
     <div class="d-flex justify-content-center align-items-center">
@@ -44,13 +47,13 @@
   </div>
   <div *ngIf="currentStep === 2">
     <div class="centered-content" [ngClass]="!isFooterEnabled ? 'pointernone' : 'pointerall'">
-      <div class="card">
+      <div class="card" style="margin-top: -10px;">
           <div>
             <p class="lab"><b>Department:</b><strong> {{this.department}}</strong></p>
             <p class="lab"><b>Process:</b><strong> {{this.process}}</strong></p>
             <p class="lab"><b>Location:</b><strong> {{this.location}}</strong></p>
           </div>
-          <div class="rounded border border-secondary p-5 mb-3" (click)="startScanner()" *ngIf="scanImp">Scan
+          <div class="rounded border border-secondary p-5 mb-2" (click)="startScanner()" *ngIf="scanImp">Scan
             Impression
             No.</div>
           <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
@@ -58,8 +61,8 @@
               (scanSuccess)="handleScanImpression($event)" [formats]="allowedFormats">
             </zxing-scanner>
           </div>
-        <div class="input-group input-group-sm mb-3">
-          <input type="text" (keyup.enter)="this.validateProcess()" class="form-control" aria-label="Small"
+        <div class="input-group input-group-sm mb-2">
+          <input type="text" (keyup.enter)="this.validateProcess()" class="form-control inputbox" aria-label="Small"
             placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
           <button type="button" [disabled]="this.impressionNo.length==0" class="btn btn-success"
             style="margin-left: 20px;" *ngIf="!isNextEnabled" (click)="validateProcess()">Add</button>
@@ -80,7 +83,7 @@
                         style="color: red; margin-right: 20px;" aria-hidden="true"></i></span></td>
                   <td>{{item.JobEntryNo}}</td>
                   <td>{{item.Units}}</td>
-                  <td [ngClass]="item.NextStep == 'Skip' ? 'redbg' : item.NextStep == 'Job Issd' ? 'bluebg' : 'greenbg'">{{item.NextStep}}</td>
+                  <td [ngClass]="item.NextStep == 'Skip' ? 'redbg' : 'greenbg'">{{item.NextStep}}</td>
                 </tr>
               </tbody>
             </table>
@@ -96,7 +99,7 @@
           (click)="this.clearArray();prevStep();this.isSettingEnabled = true" *ngIf="!isScannerEnabled"
           style="margin-right: 25vh;">Previous</button>
         <button class="btn btn-primary " *ngIf="isScannerEnabled" (click)="stopScanner()">Stop Scanner</button>
-        <button type="button" class="btn btn-success" (click)="syncSubmit();prevStep();"
+        <button type="button" class="btn btn-success" (click)="syncSubmit();prevStep();this.clearArray()"
           [disabled]="this.arrayOfImpNo.length==0" *ngIf="!isScannerEnabled">Submit</button>
       </footer>
     </div>
