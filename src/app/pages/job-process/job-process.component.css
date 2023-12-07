@@ -83,7 +83,7 @@ zxing-scanner {
     color: #442be2;
   }
   .lab{
-    margin-bottom: 5px;
+    margin-bottom: 1px;
   }
   input{
     font-size: 14px;
@@ -96,8 +96,11 @@ zxing-scanner {
   }
   @media screen and (min-width :360px) {
     .table-container {
-      max-height: 30vh;
+      max-height: 40vh;
       overflow-y: auto;
+    }
+    th,td{
+      padding: 5px !important;
     }
   }
 
@@ -109,5 +112,8 @@ zxing-scanner {
     .overflow{
       height: 400px;
       overflow: auto;
+    }
+    th,td{
+      padding: 5px !important;
     }
   } 

@@ -56,12 +56,12 @@
           <div class="rounded border border-secondary p-5 mb-2" (click)="startScanner()" *ngIf="scanImp">Scan
             Impression
             No.</div>
-          <div class="rounded border border-secondary p-3 mb-3" *ngIf="isScannerEnabled"><zxing-scanner #scanner
+          <div class="rounded border border-secondary p-3 mb-1" *ngIf="isScannerEnabled"><zxing-scanner #scanner
               [(device)]="selectedDevice" (camerasFound)="camerasFoundHandler($event)"
               (scanSuccess)="handleScanImpression($event)" [formats]="allowedFormats">
             </zxing-scanner>
           </div>
-        <div class="input-group input-group-sm mb-2">
+        <div class="input-group input-group-sm mb-1">
           <input type="text" (keyup.enter)="this.validateProcess()" class="form-control inputbox" aria-label="Small"
             placeholder="Type Impression Number" [(ngModel)]="impressionNo" aria-describedby="inputGroup-sizing-sm">
           <button type="button" [disabled]="this.impressionNo.length==0" class="btn btn-success"
@@ -69,7 +69,7 @@
         </div>
         <div *ngIf="this.newArrayOfImp.length>0">
           <div class="table-container">
-            <div class=" mb-3"><b>Do You Want To Process Below Impression no./s</b></div>
+            <div class=" mb-1"><b>Process Impression no./s</b></div>
             <table class="table">
               <tbody>
                 <tr class="table-dark">
