@@ -1,5 +1,5 @@
-import { ElementRef, EventEmitter, Injectable, Output, ViewChild } from '@angular/core';
-import {UtilsService} from '../../services/utils.service'
+import { Injectable, ViewChild } from '@angular/core';
+import { UtilsService} from '../../services/utils.service'
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ServerVariableService } from 'src/app/services/server-variable.service';
@@ -207,35 +207,35 @@ export class JobProcessService {
 
 
   validateEmployee(){
-    const param = {
-      'SituationID': 4,
-      'EmployeeCode': this.employee.name.toString().split(' - ')[0],
-      'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID: 0,
-      'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
-      'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
-      'EmployeeID': this.employee.id ? this.employee.id : 0 ,
-      'LocationID': this.LocationID ? this.LocationID : 0
-    };
-    const formData = new FormData();
-    formData.set('AutoProcess', JSON.stringify(param));
-      return this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
-        (response: any) => {
-          if(this.utilsService.isNullUndefinedOrBlank(response.data.AutoProcess[0])){
-            this.employee='';
-            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'No Record Found.' });
+    if(this.utilsService.isNullUndefinedOrBlank(this.employee)){
+      const param = {
+        'SituationID': 4,
+        'EmployeeCode': this.employee.name.toString().split(' - ')[0],
+        'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID: 0,
+        'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
+        'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
+        'EmployeeID': this.employee.id ? this.employee.id : 0 ,
+        'LocationID': this.LocationID ? this.LocationID : 0
+      };
+      const formData = new FormData();
+      formData.set('AutoProcess', JSON.stringify(param));
+        this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+          (response: any) => {
+            if(this.utilsService.isNullUndefinedOrBlank(response.data.AutoProcess[0])){
+              this.employee='';
+              this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'No Record Found.' });
+            }
+          },
+          (error) => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
           }
-        },
-        (error) => {
-          //console.error('Error:', error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
-        }
-      );
+        );
+    }
   }
 
   addImpressionNo(){
    this.arrayOfImpNo.push(this.impressionNo);
    this.impressionNo = '';
-   //console.log(this.arrayOfImpNo);
   }
 
   clearArray(){
@@ -256,8 +256,6 @@ export class JobProcessService {
     this.cookieService.set("LocationID",this.LocationID.toString(),this.expiryCookiesDate);
     this.cookieService.set("DepartmentID",this.DepartmentID.toString(),this.expiryCookiesDate);
     this.cookieService.set("ProcessID",this.ProcessID.toString(),this.expiryCookiesDate);
-    // this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate);
-    // this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate);
     !this.utilsService.isNullUndefinedOrBlank(this.employee) ? this.cookieService.set("employeeId",this.employee.id.toString(),this.expiryCookiesDate):this.cookieService.set("employeeId",'',this.expiryCookiesDate);
     !this.utilsService.isNullUndefinedOrBlank(this.employee) ?this.cookieService.set("employeeName",this.employee.name.toString(),this.expiryCookiesDate):this.cookieService.set("employeeName",'',this.expiryCookiesDate);
   }
@@ -266,7 +264,6 @@ export class JobProcessService {
   validateProcess(){
     this.impressionNo = this.impressionNo.trim();
     let ImpAdded = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo.toLowerCase() == this.impressionNo.toLowerCase());
-    // this.impressionNoList = true;
     if(ImpAdded.length>0){
       this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Impression already added' });
       return;
@@ -290,7 +287,6 @@ export class JobProcessService {
             if(arrayOfvalidateProcess.ResultSets[1].Result2[0].Illigible){
               this.allValidation();
             }else{
-              // alert('Not Illigible '+this.impressionNo);
               this.messageService.add({ severity: 'warn', summary: 'Warning', detail: ('This case is not eligible for this process.')});
               this.impressionNo = '';
             }
@@ -301,7 +297,6 @@ export class JobProcessService {
           }
         },
         (error) => {
-          //console.error('Error:', error);
           this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
         }
       );
@@ -322,14 +317,12 @@ export class JobProcessService {
     formData.set('AutoProcess', JSON.stringify(param));
       return this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
         (response: any) => {
-          // //console.log(response.data.AutoProcess[0]);
           this.AllValidationArray = response.data.AutoProcess;
           for(let item of this.AllValidationArray){
             this.AllValidationArrayColln.push(item);
             // this.AllValidationArrayColln.length>0 ? this.AllValidationArrayColln[0].push(response.data.AutoProcess) : this.AllValidationArrayColln.push(response.data.AutoProcess)
           }
           console.log('array1: ',this.AllValidationArray);
-          //console.log('array2: ',this.AllValidationArrayColln);
           var AlertMsg = response.data.AutoProcess[0].AlertMsg;
           this.ProductID = response.data.AutoProcess[0].ProductID;
           if(AlertMsg.length<1){
@@ -540,14 +533,10 @@ export class JobProcessService {
     }
     for(let item of AllValidationArray){
       let temploop = SkipProcessList.filter((a: { Transactionnumber: any,ProductID:any})=>a.Transactionnumber==item.Transactionnumber && a.ProductID == item.ProductID);
-      // for(let item1 of temploop){
-      //   await this.submit(item,item1);
-      // }
       for (let item1 of temploop) {
         try {
           await this.submit(item, item1);
         } catch (error) {
-          // Handle errors here
           console.error('Error during submit:', error);
         }
       }
@@ -623,10 +612,7 @@ export class JobProcessService {
       this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
         (response: any) => {
           if (response.data.AutoProcess[0].Result == 'Job Process Successfull') {
-            // this.messageService.add({ severity: 'success', summary: 'Success', detail: response.data.AutoProcess[0].Result });
-            // alert(response.data.AutoProcess[0].Result);
           } else {
-            // alert('Something wrong.');
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Something wrong' });
             this.impressionNo = '';
           }
@@ -636,17 +622,14 @@ export class JobProcessService {
         }
       );
     }
-    //console.log('rework:',this.paramarray);
   }
 
   cancelSkip(){
-    // this.ListOfSkipProcess=[];
     this.SkipProcessListColln = this.SkipProcessListColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=this.oldImpNo);
     this.AllValidationArrayColln = this.AllValidationArrayColln.filter((item: { Transactionnumber: string; })=>item.Transactionnumber!=this.oldImpNo);
     this.arrayOfImpNo = this.arrayOfImpNo.filter((item: string)=> item != this.oldImpNo);
     this.newArrayOfImp = this.newArrayOfImp.filter((item: {JobEntryNo : any})=> item.JobEntryNo != this.oldImpNo);
     this.impressionNo='';
-    // //console.log('cancel:',this.SkipProcessListColln);
   }
 
   scannedData: string ='';
@@ -656,9 +639,10 @@ export class JobProcessService {
   }
 
   handleScanImpression(result:any):void{
+    this.stopScanner();
+    this.beepService.playBeepSound();
     if (result) {
       this.scannedData = result;
-      this.beepService.playBeepSound();
       this.impressionNo = this.scannedData;
       // this.stopScanner(); 
       this.validateProcess();
@@ -667,6 +651,7 @@ export class JobProcessService {
 
   handleScanEmployee(result:any):void{
     this.stopScanner();
+    this.beepService.playBeepSound();
     if (result) {
       this.scannedData = result;
       console.log(this.scannedData);
@@ -675,7 +660,6 @@ export class JobProcessService {
     }
   }
   handleScanError(error: any): void {
-    //console.error('Error during scan:', error);
     this.stopScanner(); 
   }
  
@@ -708,8 +692,6 @@ export class JobProcessService {
     this.arryforEmployee =[];
     this.EmployeeID =null;
     this.employeeSelected=false;
-    // this.autoComplete.notFound = false;
-    // this.autoComplete.query = '';
   }
   clear(event:any){
     if (event.key === "Enter" || event.key === "Tab" ) {
