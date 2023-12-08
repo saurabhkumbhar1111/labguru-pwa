@@ -9,7 +9,7 @@ import { ZXingScannerComponent } from '@zxing/ngx-scanner';
 import { MessageService } from 'primeng/api';
 import { map, Observable } from 'rxjs';
 import { WizardComponent } from 'angular-archwizard';
-
+import { BeepserviceService } from 'src/app/services/beepservice.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -55,7 +55,7 @@ export class JobProcessService {
   Privilege:any;
   isAuthorizeDisable:boolean = false;
   constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
-    public serverVariableService: ServerVariableService,private messageService: MessageService) { 
+    public serverVariableService: ServerVariableService,private messageService: MessageService,private beepService:BeepserviceService) { 
     this.keyword = "name";
     this.getAllDropDownData();
     if(this.cookieService.get('employeeName')!=="undefined" && this.cookieService.get('employeeName')!==""){
@@ -658,8 +658,9 @@ export class JobProcessService {
   handleScanImpression(result:any):void{
     if (result) {
       this.scannedData = result;
+      this.beepService.playBeepSound();
       this.impressionNo = this.scannedData;
-      this.stopScanner(); 
+      // this.stopScanner(); 
       this.validateProcess();
     }
   }
@@ -673,7 +674,6 @@ export class JobProcessService {
       this.validateEmployee();
     }
   }
-
   handleScanError(error: any): void {
     //console.error('Error during scan:', error);
     this.stopScanner(); 
