@@ -1,5 +1,5 @@
 <div>
-  <div style="text-align: right;">
+  <div style="text-align: right;" *ngIf="!isAuthorizeDisable">
     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
       style="margin-right: 20px;border: none;background-color: white;" data-bs-target="#mymodal"
       (click)="openModal('mymodal')" *ngIf="isSettingEnabled">
@@ -69,7 +69,7 @@
         </div>
         <div *ngIf="this.newArrayOfImp.length>0">
           <div class="table-container">
-            <div class=" mb-1"><b>Process Impression no./s</b></div>
+            <div class=" mb-3"><b>Process Impression No./s?</b></div>
             <table class="table">
               <tbody>
                 <tr class="table-dark">
@@ -83,7 +83,9 @@
                         style="color: red; margin-right: 20px;" aria-hidden="true"></i></span></td>
                   <td>{{item.JobEntryNo}}</td>
                   <td>{{item.Units}}</td>
-                  <td [ngClass]="item.NextStep == 'Skip' ? 'redbg' : 'greenbg'">{{item.NextStep}}</td>
+                  <td [ngClass]="(item.NextStep == 'Skip') ? 'redbg' : 
+                    (item.NextStep == 'Redo 1 IN' || item.NextStep == 'Redo 2 IN' || item.NextStep == 'Redo 3 IN' || item.NextStep == 'Redo 4 IN' || item.NextStep == 'Job IN') ? 'bluebg' : 
+                    'greenbg'">{{item.NextStep}}</td>
                 </tr>
               </tbody>
             </table>
