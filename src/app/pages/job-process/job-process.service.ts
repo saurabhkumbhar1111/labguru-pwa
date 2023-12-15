@@ -156,7 +156,7 @@ export class JobProcessService {
   
   search(search :any) {
     this.employeeSelected=false;
-    if(search.length>=4){
+    if(search.length==4){
       this.getMockEmployee(search.query,0);
     }
   }
@@ -394,7 +394,7 @@ export class JobProcessService {
           if(SkipList.length>0){
 
             for(let item1 of SkipList){
-              if(item1.IsMandatory == true){
+              if(item1.IsMandatory == true && SkipList.length!=1){
                 this.cancelSkip();
                 this.tempFlag=true;
                 SkipList=[];
@@ -465,12 +465,17 @@ export class JobProcessService {
         (response: any) => {
           if(response.data.AutoProcess.length==0){
             this.impressionNo = '';
-            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Previous process is not Complete or it require doctor confirmation or case is discarded or case is delivered.' });
+            if(this.AllValidationArray.length==1){
+              this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Previous process is not Complete or it require doctor confirmation or case is discarded or case is delivered.' });
+            }
           }
           else{
             let count = response.data.AutoProcess.length;
             const fetchdublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo.toLowerCase() == data.Transactionnumber.toLowerCase());
             if(fetchdublicateData.length>0){
+              for(let unit of response.data.AutoProcess){
+                this.newArrayOfImp.filter((item: { JobEntryNo: any,Units:any; })=>{if(item.JobEntryNo == unit.JobEntryNo){item.Units+=unit.Units}});
+              }
               return;
             }
             for(let item1 of response.data.AutoProcess){
