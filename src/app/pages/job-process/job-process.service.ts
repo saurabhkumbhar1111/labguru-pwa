@@ -566,7 +566,7 @@ export class JobProcessService {
       'ProductID': item1.ProductID,
       'JobDesignID': item.JobDesignID,
       'LoginUserID': this.utilsService.getLoginUsers()?.LoginUserID,
-      'EmployeeCode': this.employee.name.toString().split(' - ')[0],
+      'EmployeeCode': this.ProcessID == item1.ProcessID ? this.employee.name.toString().split(' - ')[0] : '',
       'LocationID': this.LocationID ? this.LocationID : 0,
       'OrganizationUnitID': OU[0].OrganizationUnitID ? OU[0].OrganizationUnitID : 0,
       'FinalProcessID' : this.ProcessID
