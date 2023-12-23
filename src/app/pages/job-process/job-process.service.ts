@@ -375,6 +375,7 @@ export class JobProcessService {
   tempFlag:boolean=false;
   GetSkipProcess(){
     this.ListOfSkipProcess=[];
+    let unitCount = 0;
     for(let item of this.AllValidationArray){
       const param = {
         'SituationID': 2,
@@ -409,6 +410,7 @@ export class JobProcessService {
               }
             }
             if(!this.tempFlag){
+              unitCount = unitCount + SkipList[0].Units;
               console.log('skipcolln: ',this.SkipProcessListColln);
               SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
               this.ListOfSkipProcess.pop();
@@ -417,7 +419,7 @@ export class JobProcessService {
                 let ImpArray=[
                   {
                     "JobEntryNo": this.oldImpNo,
-                    "Units": 0,
+                    "Units": unitCount,
                     "Rework1GivenTime": null,
                     "Rework2GivenTime": null,
                     "Rework3GivenTime": null,
@@ -425,7 +427,7 @@ export class JobProcessService {
                     "NextStep":"Skip"
                   }
                 ];
-                dublicateData.length>0 ? '' : this.newArrayOfImp.push(...ImpArray);
+                dublicateData.length>0 ? this.newArrayOfImp.filter((u: { JobEntryNo: any, Units: any; })=>{if(u.JobEntryNo == this.oldImpNo){u.Units = unitCount}}) : this.newArrayOfImp.push(...ImpArray);
                 this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
               }
               else{
