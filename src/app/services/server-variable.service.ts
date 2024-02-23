@@ -10,10 +10,10 @@ export class ServerVariableService {
   static RX_TYPE = 'RxType';
   static OU = 'OU';
   static LOCATION = 'Location';
-  
 
   //URL
-  URL = 'https://uat.illusiondentallab.com/API_2020/';
+  // URL = 'https://live.illusiondentallab.com/API_2020/';
+  URL = 'https://uat.illusiondentallab.com/API_2020/'
   // URL = 'https://localhost:44354/';
   // PATH For API
 

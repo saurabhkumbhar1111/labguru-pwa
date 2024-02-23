@@ -165,6 +165,10 @@ export class User {
   @deserializeAs('RetainerToBeProvided')
   private _RetainerToBeProvided: boolean = false;
 
+  @serializeAs('LocationID')
+  @deserializeAs('LocationID')
+  private _LocationID: number = 0;
+
   /**
    * Getter DestinationName
    * @return {string}
@@ -801,6 +805,21 @@ export class User {
    */
   public set RetainerToBeProvided(value: boolean) {
     this._RetainerToBeProvided = value;
+  }
+
+  /**
+   * Getter LocationID
+   * @return {number}
+   */
+   public get LocationID(): number {
+    return this._LocationID;
+  }
+  /**
+   * Setter LocationID
+   * @param {number} value
+   */
+  public set LocationID(value: number) {
+    this._LocationID = value;
   }
 
 }

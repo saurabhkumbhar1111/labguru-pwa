@@ -79,7 +79,7 @@ export class LoginService {
     this.utilsService.loaderStart--;
     return this.http.post(this.utilsService.serverVariableService.PostLoginAPI, data).subscribe(
       (response: any) => {
-        const { LoginUserID, LoginUserCode, LoginUser, EmailID, Profile, LoginCompanyID, LoginRoleID, FinancialYearID, LoginReferenceID} = response?.data?.Login_Data
+        const { LoginUserID, LoginUserCode, LoginUser, EmailID, Profile, LoginCompanyID, LoginRoleID, FinancialYearID, LoginReferenceID, LocationID} = response?.data?.Login_Data
         const userData: any = {
           LoginUserID,
           LoginUserCode,
@@ -89,7 +89,8 @@ export class LoginService {
           LoginCompanyID,
           LoginRoleID,
           FinancialYearID,
-          LoginReferenceID
+          LoginReferenceID,
+          LocationID
         };
         if (response?.data?.Login_Data.ValidationMsg == "") {
           this.setLocalStorage(userData)
