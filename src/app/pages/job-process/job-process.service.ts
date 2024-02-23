@@ -385,9 +385,8 @@ export class JobProcessService {
     this.ListOfSkipProcess=[];
     let unitCount = 0;
     // var tempAllValidationArray = this.AllValidationArray.filter()
-    let uniqueObjects = new Map();
     let tempAllValidationArray = [];
-
+    
     for (const obj of this.AllValidationArray) {
       tempAllValidationArray.length==0 ? tempAllValidationArray.push(obj) : '';
       let checkdublicate = tempAllValidationArray.filter(p=>p.ProductID == obj.ProductID && p.JobDesignID == obj.JobDesignID);
@@ -395,81 +394,87 @@ export class JobProcessService {
         tempAllValidationArray.push(obj);
       }
     }
+    
+    var ProductList = [];
     for(let item of tempAllValidationArray){
-      const param = {
-        'SituationID': 2,
-        'TransactionNumber': this.oldImpNo,
-        'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0,
-        'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
-        'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
-      };
-      const formData = new FormData();
-      formData.set('AutoProcess', JSON.stringify(param));
-      this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
-        async (response: any) => {
-          //console.log(response.data);
-          var SkipList = [];
-          this.tempFlag = false;
-          SkipList = response.data.AutoProcess;
-          if(SkipList.length>0){
+      var checkDublicateProd = ProductList.filter(p=>p.ProductID == item.ProductID);
+      ProductList.push(...[{"ProductID":item.ProductID}]);
+      if(checkDublicateProd.length==0){
+        const param = {
+          'SituationID': 2,
+          'TransactionNumber': this.oldImpNo,
+          'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0,
+          'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
+          'ProductID': !this.utilsService.isNullUndefinedOrBlank(item.ProductID) ? item.ProductID : 0
+        };
+        const formData = new FormData();
+        formData.set('AutoProcess', JSON.stringify(param));
+        this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+          async (response: any) => {
+            //console.log(response.data);
+            var SkipList = [];
+            this.tempFlag = false;
+            SkipList = response.data.AutoProcess;
+            if(SkipList.length>0){
 
-            for(let item1 of SkipList){
-              if(item1.IsMandatory == true && SkipList.length!=1){
-                this.cancelSkip();
-                this.tempFlag=true;
-                SkipList=[];
-                this.messageService.add({ severity: 'warn', summary: 'Warning', detail: ' Process is mandatory to Process .it cannot be skipped',sticky: true});
-                break;
+              for(let item1 of SkipList){
+                if(item1.IsMandatory == true && SkipList.length!=1){
+                  this.cancelSkip();
+                  this.tempFlag=true;
+                  SkipList=[];
+                  this.messageService.add({ severity: 'warn', summary: 'Warning', detail: ' Process is mandatory to Process .it cannot be skipped',sticky: true});
+                  break;
+                }
+                else{
+                  let dublicateSkip = this.SkipProcessListColln.filter((skipitem: { Transactionnumber: any, Process: any, ProductID: any; })=>skipitem.Transactionnumber == item1.Transactionnumber && skipitem.Process == item1.Process && skipitem.ProductID == item1.ProductID)
+                  if(dublicateSkip.length==0){
+                    this.SkipProcessListColln.push(item1);
+                  }
+                }
               }
-              else{
-                let dublicateSkip = this.SkipProcessListColln.filter((skipitem: { Transactionnumber: any, Process: any, ProductID: any; })=>skipitem.Transactionnumber == item1.Transactionnumber && skipitem.Process == item1.Process && skipitem.ProductID == item1.ProductID)
-                if(dublicateSkip.length==0){
-                  this.SkipProcessListColln.push(item1);
+              if(!this.tempFlag){
+                for(let addUnit of SkipList){
+                  unitCount = unitCount + addUnit.Units;
+                }
+                // console.log('skipcolln: ',this.SkipProcessListColln);
+                SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
+                this.ListOfSkipProcess.pop();
+                if(this.ListOfSkipProcess.length>0){
+                  const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
+                  let ImpArray=[
+                    {
+                      "JobEntryNo": this.oldImpNo,
+                      "Units": unitCount,
+                      "Rework1GivenTime": null,
+                      "Rework2GivenTime": null,
+                      "Rework3GivenTime": null,
+                      "Rework4GivenTime": null,
+                      "NextStep":"Skip"
+                    }
+                  ];
+                  dublicateData.length>0 ? this.newArrayOfImp.filter((u: { JobEntryNo: any, Units: any; })=>{if(u.JobEntryNo == this.oldImpNo){u.Units = unitCount}}) : this.newArrayOfImp.push(...ImpArray);
+                  this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
+                }
+                else{
+                  await this.getMainGridData(item);
                 }
               }
             }
-            if(!this.tempFlag){
-              for(let addUnit of SkipList){
-                unitCount = unitCount + addUnit.Units;
-              }
-              // console.log('skipcolln: ',this.SkipProcessListColln);
-              SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
-              this.ListOfSkipProcess.pop();
-              if(this.ListOfSkipProcess.length>0){
-                const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
-                let ImpArray=[
-                  {
-                    "JobEntryNo": this.oldImpNo,
-                    "Units": unitCount,
-                    "Rework1GivenTime": null,
-                    "Rework2GivenTime": null,
-                    "Rework3GivenTime": null,
-                    "Rework4GivenTime": null,
-                    "NextStep":"Skip"
-                  }
-                ];
-                dublicateData.length>0 ? this.newArrayOfImp.filter((u: { JobEntryNo: any, Units: any; })=>{if(u.JobEntryNo == this.oldImpNo){u.Units = unitCount}}) : this.newArrayOfImp.push(...ImpArray);
-                this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
-              }
-              else{
-                await this.getMainGridData(item);
-              }
+            else{
+              this.reworkProcessColln.push(item);
+              await this.getMainGridData(item);
             }
+          },
+          (error) => {
+            //console.error('Error:', error);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
           }
-          else{
-            this.reworkProcessColln.push(item);
-            await this.getMainGridData(item);
-          }
-        },
-        (error) => {
-          //console.error('Error:', error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
-        }
-      );
+        );
+      }
+      this.impressionNo='';
+      // this.openModal('confirmModal');
+      // return;
     }
-    this.impressionNo='';
-    // this.openModal('confirmModal');
-    // return;
   }
 
   async getMainGridData(data:any){

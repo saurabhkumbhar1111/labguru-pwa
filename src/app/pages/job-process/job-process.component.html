@@ -102,7 +102,7 @@
           style="margin-right: 25vh;">Previous</button>
         <button class="btn btn-primary " *ngIf="isScannerEnabled" (click)="stopScanner()">Stop Scanner</button>
         <button type="button" class="btn btn-success" (click)="syncSubmit();prevStep();this.clearArray()"
-          [disabled]="this.arrayOfImpNo.length==0" *ngIf="!isScannerEnabled">Submit</button>
+          [disabled]="this.SkipProcessListColln.length==0 && this.SkipProcessListColln.length==0" *ngIf="!isScannerEnabled">Submit</button>
       </footer>
     </div>
   </div>
