@@ -27,7 +27,7 @@ export class JobProcessService {
   isFooterEnabled :boolean = true;
    Donemessage : string = "Process Success";
   OrganizationUnitID: any;
-  EmployeeID : any ; 
+  EmployeeID : any ;
   DepartmentID!: number;
   ProcessID!: number;
   LocationID: any;
@@ -37,6 +37,8 @@ export class JobProcessService {
   processJob: boolean =false;
   impressionNo :string ='';
   arrayOfImpNo : any =[];
+  paramarray:any=[];
+  reworkProcessColln:any=[];
   cities:any=[];
   selectedCity: string='';
   selectedDepartment: string='';
@@ -55,7 +57,7 @@ export class JobProcessService {
   Privilege:any;
   isAuthorizeDisable:boolean = false;
   constructor(public http: HttpClient,public utilsService:UtilsService, public router: Router,private route: ActivatedRoute,private cookieService:CookieService,
-    public serverVariableService: ServerVariableService,private messageService: MessageService,private beepService:BeepserviceService) { 
+    public serverVariableService: ServerVariableService,private messageService: MessageService,private beepService:BeepserviceService) {
     this.keyword = "name";
     this.getAllDropDownData();
     // if(this.cookieService.get('employeeName')!=="undefined" && this.cookieService.get('employeeName')!==""){
@@ -157,7 +159,7 @@ export class JobProcessService {
       modelDiv.style.display = 'none';
     }
   }
-  
+
   search(search :any) {
     this.employeeSelected=false;
     if(search.length==4){
@@ -172,7 +174,7 @@ export class JobProcessService {
         'OrganizationUnitID': 0,
         'LoginCompanyID':this.utilsService.getLoginUsers()?.LoginCompanyID,
         'LoginUserID':this.utilsService.getLoginUsers()?.LoginUserID,
-        'LoginReferenceID':this.utilsService.getLoginUsers()?.LoginReferenceID, 
+        'LoginReferenceID':this.utilsService.getLoginUsers()?.LoginReferenceID,
         'innerSituationID': 69
       };
       this.postData(param,id)
@@ -195,7 +197,7 @@ export class JobProcessService {
           //console.error('Error:', error);
         }
       );
-      
+
     }
   selectedEmployee :any;
   onSelectEmployee(data:any){
@@ -206,7 +208,7 @@ export class JobProcessService {
     this.employee = data;
     this.employeeSelected=false;
     // this.selectedEmployee = data.name.split(' - ')[0]
-    this.validateEmployee();    
+    this.validateEmployee();
   }
 
 
@@ -359,10 +361,10 @@ export class JobProcessService {
       'ProcessID': !this.utilsService.isNullUndefinedOrBlank(this.ProcessID) ? this.ProcessID : 0,
       'DepartmentID': !this.utilsService.isNullUndefinedOrBlank(this.DepartmentID) ? this.DepartmentID : 0
     };
-  
+
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
-  
+
     return this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).pipe(
       map((response: any) => {
         let arrayOfRistrictProcess = JSON.parse(response.data.AutoProcess);
@@ -379,14 +381,19 @@ export class JobProcessService {
 
   ListOfSkipProcess:any=[];
   SkipProcessListColln:any=[];
+  ProductList:any=[];
   oldImpNo:string='';
   tempFlag:boolean=false;
-  GetSkipProcess(){
+  unitCount:number = 0;
+  async GetSkipProcess(){
+    this.unitCount = 0;
     this.ListOfSkipProcess=[];
-    let unitCount = 0;
+    this.ProductList = [];
+    this.ProductList1 = [];
+    // let unitCount = 0;
     // var tempAllValidationArray = this.AllValidationArray.filter()
     let tempAllValidationArray = [];
-    
+
     for (const obj of this.AllValidationArray) {
       tempAllValidationArray.length==0 ? tempAllValidationArray.push(obj) : '';
       let checkdublicate = tempAllValidationArray.filter(p=>p.ProductID == obj.ProductID && p.JobDesignID == obj.JobDesignID);
@@ -394,12 +401,11 @@ export class JobProcessService {
         tempAllValidationArray.push(obj);
       }
     }
-    
-    var ProductList = [];
+
     for(let item of tempAllValidationArray){
-      var checkDublicateProd = ProductList.filter(p=>p.ProductID == item.ProductID);
-      ProductList.push(...[{"ProductID":item.ProductID}]);
-      if(checkDublicateProd.length==0){
+      // var checkDublicateProd = ProductList.filter(p=>p.ProductID == item.ProductID);
+      // ProductList.push(...[{"ProductID":item.ProductID}]);
+      // if(checkDublicateProd.length==0){
         const param = {
           'SituationID': 2,
           'TransactionNumber': this.oldImpNo,
@@ -409,75 +415,92 @@ export class JobProcessService {
         };
         const formData = new FormData();
         formData.set('AutoProcess', JSON.stringify(param));
-        this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
-          async (response: any) => {
-            //console.log(response.data);
-            var SkipList = [];
-            this.tempFlag = false;
-            SkipList = response.data.AutoProcess;
-            if(SkipList.length>0){
-
-              for(let item1 of SkipList){
-                if(item1.IsMandatory == true && SkipList.length!=1){
-                  this.cancelSkip();
-                  this.tempFlag=true;
-                  SkipList=[];
-                  this.messageService.add({ severity: 'warn', summary: 'Warning', detail: ' Process is mandatory to Process .it cannot be skipped',sticky: true});
-                  break;
-                }
-                else{
-                  let dublicateSkip = this.SkipProcessListColln.filter((skipitem: { Transactionnumber: any, Process: any, ProductID: any; })=>skipitem.Transactionnumber == item1.Transactionnumber && skipitem.Process == item1.Process && skipitem.ProductID == item1.ProductID)
-                  if(dublicateSkip.length==0){
-                    this.SkipProcessListColln.push(item1);
-                  }
-                }
-              }
-              if(!this.tempFlag){
-                for(let addUnit of SkipList){
-                  unitCount = unitCount + addUnit.Units;
-                }
-                // console.log('skipcolln: ',this.SkipProcessListColln);
-                SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
-                this.ListOfSkipProcess.pop();
-                if(this.ListOfSkipProcess.length>0){
-                  const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
-                  let ImpArray=[
-                    {
-                      "JobEntryNo": this.oldImpNo,
-                      "Units": unitCount,
-                      "Rework1GivenTime": null,
-                      "Rework2GivenTime": null,
-                      "Rework3GivenTime": null,
-                      "Rework4GivenTime": null,
-                      "NextStep":"Skip"
-                    }
-                  ];
-                  dublicateData.length>0 ? this.newArrayOfImp.filter((u: { JobEntryNo: any, Units: any; })=>{if(u.JobEntryNo == this.oldImpNo){u.Units = unitCount}}) : this.newArrayOfImp.push(...ImpArray);
-                  this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
-                }
-                else{
-                  await this.getMainGridData(item);
-                }
-              }
-            }
-            else{
-              this.reworkProcessColln.push(item);
-              await this.getMainGridData(item);
-            }
-          },
-          (error) => {
-            //console.error('Error:', error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
-          }
-        );
+        // return new Promise<void>((resolve, reject) => {
+          await this.getDataNew(formData,item)
+        // });
       }
       this.impressionNo='';
       // this.openModal('confirmModal');
       // return;
-    }
+    // }
   }
 
+  async getDataNew(formData: any,item: any){
+
+    return new Promise<void>((resolve, reject) => {
+    this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
+      async (response: any) => {
+        resolve()
+        //console.log(response.data);
+        var SkipList = [];
+        this.tempFlag = false;
+        SkipList = response.data.AutoProcess;
+        if(SkipList.length>0){
+
+          for(let item1 of SkipList){
+            if(item1.IsMandatory == true && SkipList.length!=1){
+              this.cancelSkip();
+              this.tempFlag=true;
+              SkipList=[];
+              this.messageService.add({ severity: 'warn', summary: 'Warning', detail: ' Process is mandatory to Process .it cannot be skipped',sticky: true});
+              break;
+            }
+            else{
+              let dublicateSkip = this.SkipProcessListColln.filter((skipitem: { Transactionnumber: any, Process: any, ProductID: any; })=>skipitem.Transactionnumber == item1.Transactionnumber && skipitem.Process == item1.Process && skipitem.ProductID == item1.ProductID)
+              if(dublicateSkip.length==0){
+                this.SkipProcessListColln.push(item1);
+              }
+            }
+          }
+          if(!this.tempFlag){
+            var checkDublicateProd = this.ProductList.filter((p: { ProductID: any; })=>p.ProductID == item.ProductID);
+            this.ProductList.push(...[{"ProductID":item.ProductID}]);
+            if(checkDublicateProd.length==0){
+              for(let addUnit of SkipList){
+                this.unitCount = this.unitCount + addUnit.Units;
+              }
+            }
+            SkipList.filter((item: { Process: any; })=> this.ListOfSkipProcess.includes(item.Process) ? '' : this.ListOfSkipProcess.push(item.Process));
+            this.ListOfSkipProcess.pop();
+            if(this.ListOfSkipProcess.length>0){
+              const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo == this.oldImpNo);
+              let ImpArray=[
+                {
+                  "JobEntryNo": this.oldImpNo,
+                  "Units": this.unitCount,
+                  "Rework1GivenTime": null,
+                  "Rework2GivenTime": null,
+                  "Rework3GivenTime": null,
+                  "Rework4GivenTime": null,
+                  "NextStep":"Skip"
+                }
+              ];
+              dublicateData.length>0 ? this.newArrayOfImp.filter((u: { JobEntryNo: any, Units: any; })=>{if(u.JobEntryNo == this.oldImpNo){u.Units = this.unitCount}}) : this.newArrayOfImp.push(...ImpArray);
+              this.ListOfSkipProcess.length>0 ? this.openModal('messageModal') : '';
+            }
+            else{
+              await this.getMainGridData(item);
+              // resolve();
+            }
+          }
+        }
+        else{
+          this.reworkProcessColln.push(item);
+          await this.getMainGridData(item);
+          // resolve();
+        }
+      },
+      (error) => {
+        //console.error('Error:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
+      }
+    );
+    });
+  }
+
+  ProductList1:any=[];
   async getMainGridData(data:any){
+    // this.ProductList1 = [];
     const param = {
       'SituationID': 5,
       'TransactionNumber': data.Transactionnumber,
@@ -488,7 +511,7 @@ export class JobProcessService {
     };
     const formData = new FormData();
     formData.set('AutoProcess', JSON.stringify(param));
-    await new Promise((resolve)=>{
+    return new Promise<void>((resolve, reject) => {
       this.http.post(this.utilsService.serverVariableService.Validate_Process, formData).subscribe(
         (response: any) => {
           if(response.data.AutoProcess.length==0){
@@ -500,43 +523,48 @@ export class JobProcessService {
           else{
             let count = response.data.AutoProcess.length;
             const fetchdublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo.toLowerCase() == data.Transactionnumber.toLowerCase());
-            if(fetchdublicateData.length>0){
-              for(let unit of response.data.AutoProcess){
-                this.newArrayOfImp.filter((item: { JobEntryNo: any,Units:any,ProductID:any })=>{if(item.JobEntryNo == unit.JobEntryNo && item.ProductID != unit.ProductID){item.Units+=unit.Units}});
-              }
-              return;
-            }
+            // if(fetchdublicateData.length>0){
+            //   for(let unit of response.data.AutoProcess){
+            //     this.newArrayOfImp.filter((item: { JobEntryNo: any,Units:any,ProductID:any })=>{if(item.JobEntryNo == unit.JobEntryNo && item.ProductID != unit.ProductID){item.Units+=unit.Units}});
+            //   }
+            //   return;
+            // }
             for(let item1 of response.data.AutoProcess){
               count--
               if(item1.Rework4GivenTime==null){
                 let JobEntryNo = item1.JobEntryNo;
                 let Units = item1.Units;
                 const dublicateData = this.newArrayOfImp.filter((item: { JobEntryNo: any; })=>item.JobEntryNo.toLowerCase() == JobEntryNo.toLowerCase());
+                var checkDublicateProd = this.ProductList1.filter((p: { ProductID: any; })=>p.ProductID == item1.ProductID && p.ProductID == item1.ProductID);
                 if(dublicateData.length>0){
-                  this.newArrayOfImp.filter((item: { JobEntryNo: any,Units:any; })=>{if(item.JobEntryNo == JobEntryNo){item.Units+=Units}});
+                  this.ProductList1.push(item1);
+                  // this.newArrayOfImp.filter((u: { JobEntryNo: string; Units: number; })=>{if(u.JobEntryNo.toLowerCase() == this.oldImpNo.toLowerCase())(u.Units=0)})
+                  if(checkDublicateProd.length == 0){
+                    for(let unit of response.data.AutoProcess){
+                      this.newArrayOfImp.filter((item: { JobEntryNo: any,Units:any; })=>{if(item.JobEntryNo == JobEntryNo){item.Units+=unit.Units}});
+                    }
+                  }
                 }else{
-                  this.newArrayOfImp.length>0 ? this.newArrayOfImp.push(item1) : this.newArrayOfImp.push(item1);
+                  this.newArrayOfImp.length>0 ?  this.newArrayOfImp.push(item1) : this.newArrayOfImp.push(item1);
+                  // this.newArrayOfImp.filter((u: { JobEntryNo: string; Units: number; })=>{if(u.JobEntryNo.toLowerCase() == this.oldImpNo.toLowerCase())(u.Units=0)})
                   this.newArrayOfImp.filter((a: { JobEntryNo: any, NextStep:any; })=>{if(a.JobEntryNo.toLowerCase() == this.oldImpNo.toLowerCase())
                     {
                       // a.NextStep = a.NextStep.split('(').length == 1 ? a.NextStep.split('(')[1].toString().slice(0,6) : a.NextStep == 'Job Received From Process' ? 'Job Recd' : a.NextStep == 'Job Issued For Process' ? 'Job Issd' : a.NextStep
-                      a.NextStep = 
-                      (a.NextStep === "Job Received From Process (Redo 1)") ? 'Redo 1 OUT' : 
-                      (a.NextStep === "Job Received From Process (Redo 2)") ? 'Redo 2 OUT' : 
-                      (a.NextStep === "Job Received From Process (Redo 3)") ? 'Redo 3 OUT' : 
-                      (a.NextStep === "Job Received From Process (Redo 4)") ? 'Redo 4 OUT' : 
-                      (a.NextStep === "Job Issued For Process (Redo 1)") ? 'Redo 1 IN' : 
-                      (a.NextStep === "Job Issued For Process (Redo 2)") ? 'Redo 2 IN' : 
-                      (a.NextStep === "Job Issued For Process (Redo 3)") ? 'Redo 3 IN' : 
-                      (a.NextStep === "Job Issued For Process (Redo 4)") ? 'Redo 4 IN' : 
-                      (a.NextStep === "Job Received From Process") ? 'Job OUT' : 
-                      (a.NextStep === "Job Issued For Process") ? 'Job IN' : 
-                      a.NextStep
+                      a.NextStep =
+                      (a.NextStep === "Job Received From Process (Redo 1)") ? 'Redo 1 OUT' :
+                      (a.NextStep === "Job Received From Process (Redo 2)") ? 'Redo 2 OUT' :
+                      (a.NextStep === "Job Received From Process (Redo 3)") ? 'Redo 3 OUT' :
+                      (a.NextStep === "Job Received From Process (Redo 4)") ? 'Redo 4 OUT' :
+                      (a.NextStep === "Job Issued For Process (Redo 1)") ? 'Redo 1 IN' :
+                      (a.NextStep === "Job Issued For Process (Redo 2)") ? 'Redo 2 IN' :
+                      (a.NextStep === "Job Issued For Process (Redo 3)") ? 'Redo 3 IN' :
+                      (a.NextStep === "Job Issued For Process (Redo 4)") ? 'Redo 4 IN' :
+                      (a.NextStep === "Job Received From Process") ? 'Job OUT' :
+                      (a.NextStep === "Job Issued For Process") ? 'Job IN' :
+                      a.NextStep;
                     }
                   })
                 }
-                 setTimeout(() => {
-                  // console.log(this.newArrayOfImp);
-                  }, 2000);
                 this.impressionNo = '';
               }
               else{
@@ -544,7 +572,7 @@ export class JobProcessService {
               }
             }
           }
-          resolve('');
+          resolve();
         },
         (error) => {
           //console.error('Error:', error);
@@ -554,8 +582,6 @@ export class JobProcessService {
     })
   }
 
-  paramarray:any=[];
-  reworkProcessColln:any=[];
   async syncSubmit() {
     const AllValidationArray = this.AllValidationArrayColln;
     const SkipProcessList = this.SkipProcessListColln;
@@ -721,7 +747,7 @@ export class JobProcessService {
     if (result) {
       this.scannedData = result;
       this.impressionNo = this.scannedData;
-      // this.stopScanner(); 
+      // this.stopScanner();
       this.validateProcess();
     }
   }
@@ -736,9 +762,9 @@ export class JobProcessService {
     }
   }
   handleScanError(error: any): void {
-    this.stopScanner(); 
+    this.stopScanner();
   }
- 
+
   stopScanner() {
     this.isScannerEnabled = false;
     this.scanImp = true;

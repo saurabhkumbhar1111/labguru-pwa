@@ -83,8 +83,8 @@
                         style="color: red; margin-right: 20px;" aria-hidden="true"></i></span></td>
                   <td>{{item.JobEntryNo}}</td>
                   <td>{{item.Units}}</td>
-                  <td [ngClass]="(item.NextStep == 'Skip') ? 'redbg' : 
-                    (item.NextStep == 'Redo 1 IN' || item.NextStep == 'Redo 2 IN' || item.NextStep == 'Redo 3 IN' || item.NextStep == 'Redo 4 IN' || item.NextStep == 'Job IN') ? 'bluebg' : 
+                  <td [ngClass]="(item.NextStep == 'Skip') ? 'redbg' :
+                    (item.NextStep == 'Redo 1 IN' || item.NextStep == 'Redo 2 IN' || item.NextStep == 'Redo 3 IN' || item.NextStep == 'Redo 4 IN' || item.NextStep == 'Job IN') ? 'bluebg' :
                     'greenbg'">{{item.NextStep}}</td>
                 </tr>
               </tbody>
@@ -102,7 +102,7 @@
           style="margin-right: 25vh;">Previous</button>
         <button class="btn btn-primary " *ngIf="isScannerEnabled" (click)="stopScanner()">Stop Scanner</button>
         <button type="button" class="btn btn-success" (click)="syncSubmit();prevStep();this.clearArray()"
-          [disabled]="this.SkipProcessListColln.length==0 && this.SkipProcessListColln.length==0" *ngIf="!isScannerEnabled">Submit</button>
+          [disabled]="this.arrayOfImpNo.length==0" *ngIf="!isScannerEnabled">Submit</button>
       </footer>
     </div>
   </div>
