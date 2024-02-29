@@ -35,7 +35,7 @@
             (click)="this.isSettingEnabled = false; setLabel();nextStep()">Next</button> -->
         </div>
         <button type="button" class="btn btn-success step1footer" style="margin-left: 2px;"
-            [disabled]="isScannerEnabled || !employeeSelected || !LocationID || !DepartmentID || !ProcessID"
+            [disabled]="isScannerEnabled || !employeeSelected || !LocationID || !DepartmentID || !ProcessID || !employee"
             (click)="this.isSettingEnabled = false; setLabel();nextStep()">Next</button>
       </div>
     </div>
@@ -154,7 +154,7 @@
                   </ng-select>
                 </td>
               </tr>
-              <tr>
+              <!-- <tr>
                 <td><label class="mb-2">Employee</label></td>
                 <td>
                   <ng-autocomplete [data]="arryforEmployee" [searchKeyword]="keyword" placeholder="Enter Employee "
@@ -172,7 +172,7 @@
                     <div [innerHTML]="notFound"></div>
                   </ng-template>
                 </td>
-              </tr>
+              </tr> -->
             </tbody>
           </table>
         </div>
