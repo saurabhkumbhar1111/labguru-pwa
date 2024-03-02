@@ -277,6 +277,7 @@ export class JobProcessService {
       this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Impression already added' });
       return;
     }
+    this.validateEmployee();
     this.oldImpNo=this.impressionNo;
     const param = {
       'SituationID': 0,
@@ -309,7 +310,6 @@ export class JobProcessService {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: error });
         }
       );
-
   }
 
   ProductID:number=0;
